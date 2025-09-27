@@ -32,9 +32,9 @@ export default function HeroSection() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="text-3xl lg:text-5xl font-bold text-neutral-900 dark:text-white leading-tight"
               >
-                Jelajahi
+                Cari
                 <span className="text-primary-600 dark:text-primary-400"> Merchandise </span>
-                Universitas
+                <br />Terbaikmu di Sini
               </motion.h1>
               
               <motion.p
@@ -43,8 +43,8 @@ export default function HeroSection() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="text-base lg:text-lg text-neutral-600 dark:text-neutral-300 leading-relaxed max-w-lg"
               >
-                Temukan merchandise universitas terbaru dengan harga terjangkau dan kualitas terbaik. 
-                Pengalaman belanja sempurna dimulai dari sini.
+                Temukan merchandise dengan harga terjangkau dan kualitas terbaik. 
+                Pengalaman belanja mudah dan aman dimulai dari sini.
               </motion.p>
             </div>
 
@@ -80,16 +80,16 @@ export default function HeroSection() {
               className="grid grid-cols-3 gap-6 pt-6 border-t border-neutral-200 dark:border-dark-700"
             >
               <div className="text-center">
-                <div className="text-xl lg:text-2xl font-bold text-neutral-900 dark:text-white">10K+</div>
-                <div className="text-xs lg:text-sm text-neutral-600 dark:text-neutral-400">Pelanggan Puas</div>
+                <div className="text-xl lg:text-2xl font-bold text-neutral-900 dark:text-white">10</div>
+                <div className="text-xs lg:text-sm text-neutral-600 dark:text-neutral-400">Pelanggan</div>
               </div>
               <div className="text-center">
-                <div className="text-xl lg:text-2xl font-bold text-neutral-900 dark:text-white">5K+</div>
+                <div className="text-xl lg:text-2xl font-bold text-neutral-900 dark:text-white">5</div>
                 <div className="text-xs lg:text-sm text-neutral-600 dark:text-neutral-400">Produk</div>
               </div>
               <div className="text-center">
                 <div className="text-xl lg:text-2xl font-bold text-neutral-900 dark:text-white">99%</div>
-                <div className="text-xs lg:text-sm text-neutral-600 dark:text-neutral-400">Kepuasan</div>
+                <div className="text-xs lg:text-sm text-neutral-600 dark:text-neutral-400">Puas</div>
               </div>
             </motion.div>
           </motion.div>

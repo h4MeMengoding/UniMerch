@@ -12,8 +12,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "UniMerch - Platform E-commerce Merchandise Universitas Terpercaya",
-  description: "Temukan koleksi merchandise UNNES terlengkap dengan kualitas terbaik dan harga terjangkau. Belanja jaket, kaos, tas, dan souvenir universitas dengan mudah.",
-  keywords: "merchandise unnes, jaket unnes, kaos polo unnes, tas unnes, souvenir universitas, merchandise universitas",
+  description: "Temukan koleksi merchandise kampus terlengkap dengan kualitas terbaik dan harga terjangkau. Belanja jaket, kaos, tas, dan souvenir universitas dengan mudah.",
+  keywords: "merchandise kampus, jaket kampus, kaos polo kampus, tas kampus, souvenir universitas, merchandise universitas",
   authors: [{ name: "UniMerch Team" }],
 };
 

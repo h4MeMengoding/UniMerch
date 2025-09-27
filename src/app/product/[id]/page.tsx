@@ -16,45 +16,311 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 
-// Mock data untuk product detail merchandise UNNES
-const mockProduct = {
-  id: '1',
-  name: 'Jaket Hoodie UNNES Premium',
-  price: 299000,
-  originalPrice: 399000,
-  images: [
-    '/api/placeholder/600/600',
-    '/api/placeholder/600/600',
-    '/api/placeholder/600/600',
-    '/api/placeholder/600/600'
-  ],
-  rating: 4.5,
-  reviewCount: 128,
-  category: 'Pakaian',
-  brand: 'UniMerch',
-  sku: 'UM-HD-001',
-  stock: 24,
-  isNew: true,
-  isOnSale: true,
-  description: 'Jaket hoodie premium dengan logo UNNES yang dirancang khusus untuk mahasiswa dan alumni. Terbuat dari bahan cotton fleece berkualitas tinggi yang nyaman dan hangat.',
-  features: [
-    'Bahan Cotton Fleece Premium',
-    'Logo UNNES Bordir Eksklusif',
-    'Kantong Depan dengan Resleting',
-    'Hoodie dengan Tali Serut',
-    'Rib di Lengan dan Hem',
-    'Tersedia dalam Berbagai Ukuran'
-  ],
-  specifications: {
-    'Bahan': 'Cotton Fleece 280gsm',
-    'Jenis Bordir': 'Computer Embroidery',
-    'Perawatan': 'Machine Wash 30°C',
-    'Asal': 'Indonesia',
-    'Sertifikasi': 'SNI Tekstil',
-    'Ketebalan': 'Medium Weight'
+// Mock data untuk produk merchandise (same as in page.tsx)
+const mockProducts = [
+  // Totebag
+  {
+    id: 'tb-a',
+    name: 'Totebag Canvas – Desain A',
+    description: 'Totebag canvas 12oz muat A4, sablon plastisol, tali kuat untuk aktivitas kampus.',
+    price: 69000,
+    originalPrice: 89000,
+    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
+    rating: 4.7,
+    reviewCount: 128,
+    category: 'Tas & Aksesoris',
+    brand: 'UniMerch',
+    sku: 'UM-TB-A',
+    stock: 24,
+    isNew: true,
+    isOnSale: true,
+    features: [
+      'Bahan Canvas 12oz Premium',
+      'Sablon Plastisol Tahan Lama',
+      'Tali Kuat dan Nyaman',
+      'Muat Dokumen A4',
+      'Desain Minimalis',
+      'Cocok untuk Aktivitas Kampus'
+    ],
+    specifications: {
+      'Bahan': 'Canvas 12oz',
+      'Dimensi': '35 x 40 cm',
+      'Perawatan': 'Hand Wash',
+      'Asal': 'Indonesia',
+      'Ketebalan': 'Medium Weight'
+    },
+    colors: ['Natural', 'Navy', 'Black'],
+    sizes: ['One Size']
   },
-  colors: ['Navy', 'Maroon', 'Grey'],
-  sizes: ['S', 'M', 'L', 'XL', 'XXL']
+  {
+    id: 'tb-b',
+    name: 'Totebag Canvas – Desain B',
+    description: 'Bahan canvas 12oz dengan saku dalam, cocok untuk buku A4 dan laptop tipis.',
+    price: 79000,
+    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
+    rating: 4.5,
+    reviewCount: 76,
+    category: 'Tas & Aksesoris',
+    brand: 'UniMerch',
+    sku: 'UM-TB-B',
+    stock: 18,
+    isNew: false,
+    isOnSale: false,
+    features: [
+      'Bahan Canvas 12oz Premium',
+      'Saku Dalam untuk Keamanan',
+      'Muat Laptop hingga 13 inch',
+      'Jahitan Kuat dan Rapi',
+      'Desain Fungsional',
+      'Cocok untuk Kuliah'
+    ],
+    specifications: {
+      'Bahan': 'Canvas 12oz',
+      'Dimensi': '38 x 42 cm',
+      'Perawatan': 'Hand Wash',
+      'Asal': 'Indonesia',
+      'Ketebalan': 'Medium Weight'
+    },
+    colors: ['Khaki', 'Navy', 'Black'],
+    sizes: ['One Size']
+  },
+  {
+    id: 'tb-c',
+    name: 'Totebag Premium – Desain C',
+    description: 'Canvas premium 14oz, jahitan bartack di pegangan, kapasitas besar.',
+    price: 99000,
+    originalPrice: 119000,
+    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
+    rating: 4.6,
+    reviewCount: 92,
+    category: 'Tas & Aksesoris',
+    brand: 'UniMerch',
+    sku: 'UM-TB-C',
+    stock: 15,
+    isNew: false,
+    isOnSale: true,
+    features: [
+      'Bahan Canvas Premium 14oz',
+      'Jahitan Bartack Extra Kuat',
+      'Kapasitas Besar',
+      'Handle yang Nyaman',
+      'Desain Premium',
+      'Tahan Lama'
+    ],
+    specifications: {
+      'Bahan': 'Canvas 14oz Premium',
+      'Dimensi': '40 x 45 cm',
+      'Perawatan': 'Hand Wash',
+      'Asal': 'Indonesia',
+      'Ketebalan': 'Heavy Weight'
+    },
+    colors: ['Natural', 'Black', 'Navy'],
+    sizes: ['One Size']
+  },
+
+  // Bucket Hat
+  {
+    id: 'bh-a',
+    name: 'Bucket Hat – Desain A',
+    description: 'Katun drill adem, bordir logo kampus di depan, rim medium.',
+    price: 89000,
+    originalPrice: 109000,
+    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
+    rating: 4.6,
+    reviewCount: 54,
+    category: 'Aksesoris',
+    brand: 'UniMerch',
+    sku: 'UM-BH-A',
+    stock: 20,
+    isNew: false,
+    isOnSale: true,
+    features: [
+      'Bahan Katun Drill Adem',
+      'Bordir Logo Kampus',
+      'Rim Medium',
+      'Nyaman Dipakai',
+      'UV Protection',
+      'Cocok untuk Outdoor'
+    ],
+    specifications: {
+      'Bahan': 'Cotton Drill',
+      'Lingkar Kepala': '56-58 cm',
+      'Perawatan': 'Hand Wash',
+      'Asal': 'Indonesia',
+      'UV Protection': 'UPF 30+'
+    },
+    colors: ['Khaki', 'Black', 'Navy'],
+    sizes: ['S/M', 'L/XL']
+  },
+  {
+    id: 'bh-b',
+    name: 'Bucket Hat – Desain B (Hitam)',
+    description: 'Bahan katun, bordir rapi, cocok untuk outdoor & casual.',
+    price: 99000,
+    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
+    rating: 4.4,
+    reviewCount: 38,
+    category: 'Aksesoris',
+    brand: 'UniMerch',
+    sku: 'UM-BH-B',
+    stock: 12,
+    isNew: true,
+    isOnSale: false,
+    features: [
+      'Bahan Katun Premium',
+      'Bordir Rapi dan Presisi',
+      'Warna Hitam Elegan',
+      'Multifungsi',
+      'Tahan Cuaca',
+      'Style Kasual'
+    ],
+    specifications: {
+      'Bahan': 'Cotton Premium',
+      'Lingkar Kepala': '56-60 cm',
+      'Perawatan': 'Hand Wash',
+      'Asal': 'Indonesia',
+      'Warna': 'Black'
+    },
+    colors: ['Black'],
+    sizes: ['One Size']
+  },
+  {
+    id: 'bh-c',
+    name: 'Bucket Hat – Desain C (Navy)',
+    description: 'Versi navy minimalis, ringan dan nyaman dipakai harian.',
+    price: 109000,
+    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
+    rating: 4.5,
+    reviewCount: 41,
+    category: 'Aksesoris',
+    brand: 'UniMerch',
+    sku: 'UM-BH-C',
+    stock: 8,
+    isNew: true,
+    isOnSale: false,
+    features: [
+      'Desain Minimalis',
+      'Warna Navy Klasik',
+      'Bahan Ringan',
+      'Nyaman untuk Harian',
+      'Versatile Style',
+      'Premium Quality'
+    ],
+    specifications: {
+      'Bahan': 'Cotton Blend',
+      'Lingkar Kepala': '56-58 cm',
+      'Perawatan': 'Machine Wash',
+      'Asal': 'Indonesia',
+      'Warna': 'Navy'
+    },
+    colors: ['Navy'],
+    sizes: ['One Size']
+  },
+
+  // Kaos
+  {
+    id: 'tee-a',
+    name: 'Kaos – Desain A (Combed 24s)',
+    description: 'Kaos unisex cotton combed 24s, sablon plastisol, cutting regular.',
+    price: 119000,
+    originalPrice: 149000,
+    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
+    rating: 4.8,
+    reviewCount: 210,
+    category: 'Pakaian',
+    brand: 'UniMerch',
+    sku: 'UM-TEE-A',
+    stock: 30,
+    isNew: true,
+    isOnSale: true,
+    features: [
+      'Bahan Cotton Combed 24s',
+      'Sablon Plastisol Awet',
+      'Cutting Regular Fit',
+      'Unisex Design',
+      'Nyaman Dipakai',
+      'Kualitas Premium'
+    ],
+    specifications: {
+      'Bahan': 'Cotton Combed 24s',
+      'Gramasi': '180gsm',
+      'Perawatan': 'Machine Wash 30°C',
+      'Asal': 'Indonesia',
+      'Fit': 'Regular'
+    },
+    colors: ['White', 'Black', 'Navy', 'Grey'],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL']
+  },
+  {
+    id: 'tee-b',
+    name: 'Kaos – Desain B (Oversize 24s)',
+    description: 'Bahan combed 24s, fit oversize, printing awet tidak mudah pecah.',
+    price: 129000,
+    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
+    rating: 4.7,
+    reviewCount: 143,
+    category: 'Pakaian',
+    brand: 'UniMerch',
+    sku: 'UM-TEE-B',
+    stock: 25,
+    isNew: false,
+    isOnSale: false,
+    features: [
+      'Bahan Cotton Combed 24s',
+      'Fit Oversize Trendy',
+      'Printing Berkualitas Tinggi',
+      'Tidak Mudah Pecah',
+      'Comfortable Wear',
+      'Modern Style'
+    ],
+    specifications: {
+      'Bahan': 'Cotton Combed 24s',
+      'Gramasi': '180gsm',
+      'Perawatan': 'Machine Wash 30°C',
+      'Asal': 'Indonesia',
+      'Fit': 'Oversize'
+    },
+    colors: ['White', 'Black', 'Khaki', 'Navy'],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL']
+  },
+  {
+    id: 'tee-c',
+    name: 'Kaos – Desain C (Combed 30s)',
+    description: 'Lebih ringan dan adem, cocok untuk aktivitas harian.',
+    price: 99000,
+    originalPrice: 129000,
+    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
+    rating: 4.6,
+    reviewCount: 98,
+    category: 'Pakaian',
+    brand: 'UniMerch',
+    sku: 'UM-TEE-C',
+    stock: 22,
+    isNew: false,
+    isOnSale: true,
+    features: [
+      'Bahan Cotton Combed 30s',
+      'Lebih Ringan dan Adem',
+      'Cocok Aktivitas Harian',
+      'Breathable Fabric',
+      'Soft Touch',
+      'Everyday Comfort'
+    ],
+    specifications: {
+      'Bahan': 'Cotton Combed 30s',
+      'Gramasi': '160gsm',
+      'Perawatan': 'Machine Wash 30°C',
+      'Asal': 'Indonesia',
+      'Fit': 'Regular'
+    },
+    colors: ['White', 'Light Grey', 'Navy', 'Black'],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL']
+  }
+];
+
+// Function to get product by ID
+const getProductById = (id: string) => {
+  return mockProducts.find(product => product.id === id) || mockProducts[0];
 };
 
 const mockReviews = [
@@ -63,7 +329,7 @@ const mockReviews = [
     user: 'Ahmad Rizki',
     rating: 5,
     date: '2025-01-15',
-    comment: 'Kualitas jaket sangat bagus! Bahan tebal dan nyaman. Logo UNNES nya keren banget!',
+    comment: 'Kualitas produk sangat bagus! Bahan premium dan sesuai deskripsi. Recommended!',
     helpful: 12
   },
   {
@@ -71,7 +337,7 @@ const mockReviews = [
     user: 'Sari Dewi',
     rating: 4,
     date: '2025-01-10',
-    comment: 'Ukuran sesuai size chart. Warna navy nya bagus dan tidak mudah pudar. Recommended!',
+    comment: 'Ukuran sesuai size chart. Kualitas oke dan tidak mudah rusak.',
     helpful: 8
   },
   {
@@ -79,12 +345,13 @@ const mockReviews = [
     user: 'Budi Santoso',
     rating: 5,
     date: '2025-01-05',
-    comment: 'Sebagai alumni UNNES, ini wajib punya! Kualitas premium, packaging rapi. Top!',
+    comment: 'Sebagai alumni kampus, ini wajib punya! Kualitas premium, packaging rapi. Top!',
     helpful: 15
   }
 ];
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
+  const mockProduct = getProductById(params.id);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(mockProduct.colors[0]);
   const [selectedSize, setSelectedSize] = useState(mockProduct.sizes[0]);
