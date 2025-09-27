@@ -419,17 +419,17 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           </Link>
         </motion.div>
 
-        {/* Product Info Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Product Images */}
+        {/* Product Info Grid - 3 Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-12 gap-6">
+          {/* Left Column - Product Images */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="space-y-3"
+            className="lg:col-span-1 xl:col-span-4 space-y-4"
           >
             {/* Main Image */}
-            <div className="relative aspect-square bg-neutral-100 dark:bg-dark-800 rounded-2xl overflow-hidden max-w-lg mx-auto">
+            <div className="relative aspect-square bg-neutral-100 dark:bg-dark-800 rounded-xl overflow-hidden">
               <Image
                 src={mockProduct.images[selectedImage]}
                 alt={mockProduct.name}
@@ -459,7 +459,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </div>
 
             {/* Thumbnail Images */}
-            <div className="grid grid-cols-4 gap-2 max-w-lg mx-auto">
+            <div className="grid grid-cols-4 gap-2">
               {mockProduct.images.map((image, index) => (
                 <button
                   key={index}
@@ -480,21 +480,22 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </div>
           </motion.div>
 
-          {/* Product Details */}
+          {/* Center Column - Product Details */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-4"
+            className="lg:col-span-1 xl:col-span-5 space-y-6"
           >
-            {/* Brand & Category */}
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{mockProduct.brand}</span>
-              <span className="text-sm text-neutral-500 dark:text-neutral-400">SKU: {mockProduct.sku}</span>
-            </div>
-
             {/* Product Name */}
-            <h1 className="text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white">{mockProduct.name}</h1>
+            <div className="space-y-2">
+              <h1 className="text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white leading-tight">
+                {mockProduct.name}
+              </h1>
+              <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                Brand: {mockProduct.brand} | SKU: {mockProduct.sku}
+              </div>
+            </div>
 
             {/* Rating */}
             <div className="flex items-center space-x-4">
@@ -512,184 +513,137 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                   ))}
                 </div>
                 <span className="text-sm font-medium text-neutral-900 dark:text-white">{mockProduct.rating}</span>
-                <span className="text-sm text-neutral-500 dark:text-neutral-400">({mockProduct.reviewCount} reviews)</span>
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">({mockProduct.reviewCount} ulasan)</span>
               </div>
-              <button className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
-                See all reviews
-              </button>
             </div>
 
-            {/* Price */}
-            <div className="flex items-center space-x-3">
-              <span className="text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white">
-                {formatPrice(mockProduct.price)}
-              </span>
-              {mockProduct.originalPrice && mockProduct.originalPrice > mockProduct.price && (
-                <span className="text-lg lg:text-xl text-neutral-500 dark:text-neutral-400 line-through">
-                  {formatPrice(mockProduct.originalPrice)}
-                </span>
-              )}
-              {discountPercentage > 0 && (
-                <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-sm font-semibold px-2 py-1 rounded">
-                  Save {discountPercentage}%
-                </span>
-              )}
-            </div>
-
-            {/* Stock Status */}
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${mockProduct.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
-              <span className={`text-sm ${mockProduct.stock > 0 ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-                {mockProduct.stock > 0 ? `${mockProduct.stock} in stock` : 'Out of stock'}
-              </span>
-            </div>
-
-            {/* Color Selection */}
+            {/* Unit Price */}
             <div className="space-y-2">
-              <h3 className="font-medium text-neutral-900 dark:text-white">Color: {selectedColor}</h3>
-              <div className="flex space-x-2">
-                {mockProduct.colors.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
-                      selectedColor === color
-                        ? 'border-primary-600 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
-                        : 'border-neutral-300 dark:border-dark-600 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-dark-500'
-                    }`}
-                  >
-                    {color}
-                  </button>
-                ))}
+              <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Harga Satuan:</h3>
+              <div className="flex items-center space-x-3">
+                <span className="text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white">
+                  {formatPrice(mockProduct.price)}
+                </span>
+                {mockProduct.originalPrice && mockProduct.originalPrice > mockProduct.price && (
+                  <>
+                    <span className="text-lg text-neutral-500 dark:text-neutral-400 line-through">
+                      {formatPrice(mockProduct.originalPrice)}
+                    </span>
+                    {discountPercentage > 0 && (
+                      <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-sm font-semibold px-2 py-1 rounded">
+                        Hemat {discountPercentage}%
+                      </span>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Quantity & Add to Cart */}
+            {/* Item Variants */}
             <div className="space-y-3">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <span className="font-medium text-neutral-900 dark:text-white">Quantity:</span>
-                  <div className="flex items-center border border-neutral-300 dark:border-dark-600 rounded-lg">
+              <h3 className="font-medium text-neutral-900 dark:text-white">Pilihan Item:</h3>
+              
+              {/* Color Selection */}
+              <div className="space-y-2">
+                <span className="text-sm text-neutral-600 dark:text-neutral-400">Warna: {selectedColor}</span>
+                <div className="flex space-x-2">
+                  {mockProduct.colors.map((color) => (
                     <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="p-2 hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors"
-                      disabled={quantity <= 1}
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                        selectedColor === color
+                          ? 'border-primary-600 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+                          : 'border-neutral-300 dark:border-dark-600 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-dark-500'
+                      }`}
                     >
-                      <Minus className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+                      {color}
                     </button>
-                    <span className="px-3 py-1.5 font-medium text-neutral-900 dark:text-white">{quantity}</span>
-                    <button
-                      onClick={() => setQuantity(Math.min(mockProduct.stock, quantity + 1))}
-                      className="p-2 hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors"
-                      disabled={quantity >= mockProduct.stock}
-                    >
-                      <Plus className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
-                    </button>
-                  </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="flex space-x-3">
-                <motion.button
-                  className="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-2.5 px-6 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-colors"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  disabled={mockProduct.stock === 0}
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  <span>Add to Cart</span>
-                </motion.button>
-                
-                <motion.button
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                  className={`p-2.5 rounded-lg border-2 transition-colors ${
-                    isWishlisted
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
-                      : 'border-neutral-300 dark:border-dark-600 text-neutral-600 dark:text-neutral-400 hover:border-red-300 dark:hover:border-red-500 hover:text-red-500 dark:hover:text-red-400'
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
-                </motion.button>
+              {/* Size Selection */}
+              <div className="space-y-2">
+                <span className="text-sm text-neutral-600 dark:text-neutral-400">Ukuran: {selectedSize}</span>
+                <div className="flex space-x-2">
+                  {mockProduct.sizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                        selectedSize === size
+                          ? 'border-primary-600 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+                          : 'border-neutral-300 dark:border-dark-600 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-dark-500'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </motion.div>
-        </div>
 
-        {/* Product Details Tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-12"
-        >
-          {/* Tab Navigation */}
-          <div className="border-b border-neutral-200 dark:border-dark-700">
-            <nav className="flex space-x-8">
-              {tabs.map((tab) => (
+            {/* Deskripsi dan Ulasan Tabs */}
+            <div className="border-t border-neutral-200 dark:border-dark-700 pt-6">
+              <div className="flex space-x-6 mb-4">
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === tab.id
+                  onClick={() => setActiveTab('description')}
+                  className={`pb-2 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === 'description'
                       ? 'border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400'
                       : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
                   }`}
                 >
-                  {tab.label}
+                  Deskripsi
                 </button>
-              ))}
-            </nav>
-          </div>
+                <button
+                  onClick={() => setActiveTab('reviews')}
+                  className={`pb-2 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === 'reviews'
+                      ? 'border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400'
+                      : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
+                  }`}
+                >
+                  Ulasan ({mockProduct.reviewCount})
+                </button>
+              </div>
 
-          {/* Tab Content */}
-          <div className="py-6">
-            {activeTab === 'description' && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4"
-              >
-                <div>
-                  <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Product Description</h3>
-                  <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed">{mockProduct.description}</p>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Features</h3>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {mockProduct.features.map((feature, index) => (
-                      <li key={index} className="flex items-start space-x-2 text-neutral-600 dark:text-neutral-300">
-                        <Award className="w-4 h-4 text-primary-600 dark:text-primary-400 mt-1 flex-shrink-0" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </motion.div>
-            )}
+              {/* Tab Content */}
+              <div className="space-y-4">
+                {activeTab === 'description' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-4"
+                  >
+                    <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed">{mockProduct.description}</p>
+                    
+                    <div>
+                      <h4 className="font-semibold text-neutral-900 dark:text-white mb-2">Fitur Utama:</h4>
+                      <ul className="space-y-1">
+                        {mockProduct.features.slice(0, 4).map((feature, index) => (
+                          <li key={index} className="flex items-start space-x-2 text-neutral-600 dark:text-neutral-300 text-sm">
+                            <Award className="w-4 h-4 text-primary-600 dark:text-primary-400 mt-0.5 flex-shrink-0" />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </motion.div>
+                )}
 
-            {activeTab === 'reviews' && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-6"
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Customer Reviews</h3>
-                  <button className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium">
-                    Write a Review
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {mockReviews.map((review) => (
-                    <div key={review.id} className="border-b border-neutral-200 dark:border-dark-700 pb-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h4 className="font-medium text-neutral-900 dark:text-white">{review.user}</h4>
-                          <div className="flex items-center space-x-2 mt-1">
+                {activeTab === 'reviews' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-4"
+                  >
+                    <div className="space-y-3 max-h-60 overflow-y-auto">
+                      {mockReviews.slice(0, 3).map((review) => (
+                        <div key={review.id} className="border-b border-neutral-200 dark:border-dark-700 pb-3 last:border-b-0">
+                          <div className="flex items-start justify-between mb-1">
+                            <h5 className="font-medium text-neutral-900 dark:text-white text-sm">{review.user}</h5>
                             <div className="flex space-x-0.5">
                               {Array.from({ length: 5 }, (_, i) => (
                                 <Star
@@ -702,22 +656,134 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                                 />
                               ))}
                             </div>
-                            <span className="text-sm text-neutral-500 dark:text-neutral-400">{review.date}</span>
                           </div>
+                          <p className="text-neutral-600 dark:text-neutral-300 text-sm">{review.comment}</p>
                         </div>
-                      </div>
-                      <p className="text-neutral-600 dark:text-neutral-300 mb-2">{review.comment}</p>
-                      <button className="flex items-center space-x-1 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">
-                        <MessageCircle className="w-4 h-4" />
-                        <span>Helpful ({review.helpful})</span>
-                      </button>
+                      ))}
                     </div>
-                  ))}
+                    <button className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium">
+                      Lihat semua ulasan →
+                    </button>
+                  </motion.div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Right Column - Purchase Controls */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="lg:col-span-2 xl:col-span-3 bg-white dark:bg-dark-900 border border-neutral-200 dark:border-dark-700 rounded-xl p-6 h-fit sticky top-6"
+          >
+            <div className="space-y-6">
+              {/* Section Title */}
+              <h3 className="text-lg font-semibold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-dark-700 pb-3">
+                Atur Pembelian
+              </h3>
+
+              {/* Stock Status */}
+              <div className="flex items-center space-x-2 bg-neutral-50 dark:bg-dark-800 rounded-lg p-3">
+                <div className={`w-3 h-3 rounded-full ${mockProduct.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
+                <span className={`text-sm font-medium ${mockProduct.stock > 0 ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                  {mockProduct.stock > 0 ? `Stok tersedia (${mockProduct.stock} item)` : 'Stok habis'}
+                </span>
+              </div>
+
+              {/* Quantity Controls */}
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  Jumlah:
+                </label>
+                <div className="flex items-center justify-center">
+                  <div className="flex items-center border border-neutral-300 dark:border-dark-600 rounded-lg">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="p-3 hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors rounded-l-lg disabled:opacity-50"
+                      disabled={quantity <= 1}
+                    >
+                      <Minus className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+                    </button>
+                    <span className="px-6 py-3 font-semibold text-lg text-neutral-900 dark:text-white min-w-20 text-center">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(Math.min(mockProduct.stock, quantity + 1))}
+                      className="p-3 hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors rounded-r-lg disabled:opacity-50"
+                      disabled={quantity >= mockProduct.stock}
+                    >
+                      <Plus className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+                    </button>
+                  </div>
                 </div>
-              </motion.div>
-            )}
-          </div>
-        </motion.div>
+                <p className="text-xs text-center text-neutral-500 dark:text-neutral-400">
+                  Maksimal {mockProduct.stock} item
+                </p>
+              </div>
+
+              {/* Total Price */}
+              <div className="space-y-3 bg-neutral-50 dark:bg-dark-800 rounded-lg p-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-neutral-600 dark:text-neutral-400">Harga satuan:</span>
+                    <span className="font-medium text-neutral-900 dark:text-white">{formatPrice(mockProduct.price)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-neutral-600 dark:text-neutral-400">Jumlah:</span>
+                    <span className="font-medium text-neutral-900 dark:text-white">{quantity} item</span>
+                  </div>
+                  <hr className="border-neutral-200 dark:border-dark-600" />
+                  <div className="flex justify-between">
+                    <span className="font-semibold text-neutral-900 dark:text-white">Total Harga:</span>
+                    <span className="font-bold text-xl text-primary-600 dark:text-primary-400">
+                      {formatPrice(mockProduct.price * quantity)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                {/* Add to Cart Button */}
+                <motion.button
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-6 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
+                  whileHover={{ scale: mockProduct.stock > 0 ? 1.02 : 1 }}
+                  whileTap={{ scale: mockProduct.stock > 0 ? 0.98 : 1 }}
+                  disabled={mockProduct.stock === 0}
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  <span>{mockProduct.stock > 0 ? 'Tambah ke Keranjang' : 'Stok Habis'}</span>
+                </motion.button>
+
+                {/* Buy Now Button */}
+                <motion.button
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
+                  whileHover={{ scale: mockProduct.stock > 0 ? 1.02 : 1 }}
+                  whileTap={{ scale: mockProduct.stock > 0 ? 0.98 : 1 }}
+                  disabled={mockProduct.stock === 0}
+                >
+                  {mockProduct.stock > 0 ? 'Beli Sekarang' : 'Stok Habis'}
+                </motion.button>
+
+                {/* Like/Wishlist Button */}
+                <motion.button
+                  onClick={() => setIsWishlisted(!isWishlisted)}
+                  className={`w-full py-3 px-6 rounded-lg font-medium border-2 transition-colors flex items-center justify-center space-x-2 ${
+                    isWishlisted
+                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
+                      : 'border-neutral-300 dark:border-dark-600 text-neutral-600 dark:text-neutral-400 hover:border-red-300 dark:hover:border-red-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                  }`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
+                  <span>{isWishlisted ? 'Disukai' : 'Sukai'}</span>
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
