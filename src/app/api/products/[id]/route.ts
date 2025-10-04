@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { findProductById } from '@/lib/database';
 
 // GET - Fetch single product for public view
 export async function GET(
@@ -10,16 +10,7 @@ export async function GET(
     const { id } = await params;
     const productId = parseInt(id);
     
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-      include: {
-        variants: {
-          include: {
-            options: true
-          }
-        }
-      }
-    });
+    const product = await findProductById(productId);
 
     if (!product) {
       return NextResponse.json(

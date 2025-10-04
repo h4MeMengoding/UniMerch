@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/prisma';
+import { findUserByEmail } from '@/lib/database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,10 +14,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user in database
-    const user = await prisma.user.findUnique({
-      where: { email }
-    });
+    // Find user in database with retry logic for connection issues
+    let user;
+    try {
+      user = await findUserByEmail(email);
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
+      return NextResponse.json(
+        { message: 'Database connection error. Please try again.' },
+        { status: 503 }
+      );
+    }
 
     if (!user) {
       return NextResponse.json(

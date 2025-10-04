@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { findProducts } from '@/lib/database';
 
 // GET - Fetch all products for public use
 export async function GET() {
   try {
-    const products = await prisma.product.findMany({
+    const products = await findProducts({
       where: {
         stock: {
           gt: 0 // Only show products with stock > 0

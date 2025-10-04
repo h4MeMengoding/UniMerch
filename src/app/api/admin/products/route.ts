@@ -1,21 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { findProductsWithVariants, createProduct } from '@/lib/database';
 
 // GET - Fetch all products
 export async function GET() {
   try {
-    const products = await prisma.product.findMany({
-      include: {
-        variants: {
-          include: {
-            options: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    const products = await findProductsWithVariants();
 
     return NextResponse.json(products);
   } catch (error) {
@@ -53,37 +42,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const product = await prisma.product.create({
-      data: {
-        name,
-        description,
-        price: parseInt(price),
-        originalPrice: originalPrice ? parseInt(originalPrice) : null,
-        image,
-        category,
-        isNew: Boolean(isNew),
-        isOnSale: Boolean(isOnSale),
-        stock: parseInt(stock),
-        hasVariants: Boolean(hasVariants),
-        variants: hasVariants && variants ? {
-          create: variants.map((variant: { name: string; options: { name: string; image?: string }[] }) => ({
-            name: variant.name,
-            options: {
-              create: variant.options.map((option: { name: string; image?: string }) => ({
-                name: option.name,
-                image: option.image || null
-              }))
-            }
-          }))
-        } : undefined
-      },
-      include: {
-        variants: {
-          include: {
-            options: true
+    const product = await createProduct({
+      name,
+      description,
+      price: parseInt(price),
+      originalPrice: originalPrice ? parseInt(originalPrice) : null,
+      image,
+      category,
+      isNew: Boolean(isNew),
+      isOnSale: Boolean(isOnSale),
+      stock: parseInt(stock),
+      hasVariants: Boolean(hasVariants),
+      variants: hasVariants && variants ? {
+        create: variants.map((variant: { name: string; options: { name: string; image?: string }[] }) => ({
+          name: variant.name,
+          options: {
+            create: variant.options.map((option: { name: string; image?: string }) => ({
+              name: option.name,
+              image: option.image || null
+            }))
           }
-        }
-      }
+        }))
+      } : undefined
     });
 
     return NextResponse.json(product, { status: 201 });
