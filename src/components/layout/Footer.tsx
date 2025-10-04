@@ -175,7 +175,7 @@ export default function Footer() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Masukkan email Anda"
-                  className="w-full px-4 py-3 bg-neutral-800 dark:bg-dark-800 border border-neutral-700 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 focus:border-transparent text-white placeholder-neutral-400 dark:placeholder-neutral-500"
+                  className="w-full px-4 py-3 bg-neutral-800 dark:bg-dark-800 border border-neutral-700 dark:border-dark-600 rounded-md focus:outline-none dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500"
                   required
                   aria-label="Alamat email untuk newsletter"
                 />
@@ -242,3 +242,4 @@ export default function Footer() {
     </footer>
   );
 }
+

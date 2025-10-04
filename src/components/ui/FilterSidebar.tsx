@@ -146,7 +146,7 @@ export default function FilterSidebar({ isOpen, onClose, filters }: FilterSideba
                               type="checkbox"
                               checked={selectedFilters[section.id]?.includes(option.id) || false}
                               onChange={(e) => handleFilterChange(section.id, option.id, e.target.checked)}
-                              className="w-4 h-4 text-primary-600 dark:text-primary-400 border-neutral-300 dark:border-dark-600 rounded focus:ring-primary-500 dark:focus:ring-primary-400 focus:ring-offset-0 dark:bg-dark-700"
+                              className="w-4 h-4 text-primary-600 dark:text-primary-400 border-neutral-300 dark:border-dark-600 rounded dark:bg-dark-700"
                               aria-describedby={`${option.id}-count`}
                             />
                             <span className="flex-1 text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
@@ -176,7 +176,7 @@ export default function FilterSidebar({ isOpen, onClose, filters }: FilterSideba
                               type="number"
                               value={priceRange.min}
                               onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) }))}
-                              className="w-full px-3 py-2 border border-neutral-300 dark:border-dark-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent bg-white dark:bg-dark-700 text-neutral-900 dark:text-white"
+                              className="w-full px-3 py-2 border border-neutral-300 dark:border-dark-600 rounded-md text-sm focus:outline-none dark:bg-white dark:bg-dark-700 text-neutral-900 dark:text-white"
                               placeholder="0"
                             />
                           </div>
@@ -189,7 +189,7 @@ export default function FilterSidebar({ isOpen, onClose, filters }: FilterSideba
                               type="number"
                               value={priceRange.max}
                               onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) }))}
-                              className="w-full px-3 py-2 border border-neutral-300 dark:border-dark-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent bg-white dark:bg-dark-700 text-neutral-900 dark:text-white"
+                              className="w-full px-3 py-2 border border-neutral-300 dark:border-dark-600 rounded-md text-sm focus:outline-none dark:bg-white dark:bg-dark-700 text-neutral-900 dark:text-white"
                               placeholder="1000000"
                             />
                           </div>
@@ -280,3 +280,4 @@ export default function FilterSidebar({ isOpen, onClose, filters }: FilterSideba
     </>
   );
 }
+

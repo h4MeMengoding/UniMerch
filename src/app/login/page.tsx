@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, Mail, Eye, EyeOff, User, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/providers/AuthProvider';
+import toast from 'react-hot-toast';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -14,6 +17,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,17 +36,21 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        // Store user session
-        localStorage.setItem('userToken', data.token);
-        localStorage.setItem('userData', JSON.stringify(data.user));
+        // Use AuthContext to handle login
+        login(data.user, data.token);
+        
+        // Show success message with react-hot-toast
+        toast.success(`Halo ${data.user.name}👋`);
         
         // Redirect based on role
         router.push(data.redirectUrl);
       } else {
         setError(data.message || 'Login failed');
+        toast.error(`Login gagal: ${data.message || 'Email atau password salah'}`);
       }
     } catch (error) {
       setError('Something went wrong. Please try again.');
+      toast.error('Terjadi kesalahan. Silakan coba lagi dalam beberapa saat');
       console.error('Login error:', error);
     } finally {
       setIsLoading(false);
@@ -167,6 +175,19 @@ export default function Login() {
             </motion.button>
           </form>
 
+          {/* Register Link */}
+          <div className="mt-6 text-center">
+            <p className="text-neutral-600 dark:text-neutral-400">
+              Belum punya akun?{' '}
+              <Link
+                href="/register"
+                className="text-primary-500 hover:text-primary-600 font-medium transition-colors duration-200"
+              >
+                Daftar di sini
+              </Link>
+            </p>
+          </div>
+
           {/* Demo Credentials */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -181,7 +202,7 @@ export default function Login() {
                 <p className="text-sm font-medium text-red-700 dark:text-red-300">Admin Account</p>
               </div>
               <p className="text-xs text-red-600 dark:text-red-400">
-                Email: admin@demo.com<br />
+                Email: pkkmb@unimerch.id<br />
                 Password: admin123
               </p>
             </div>

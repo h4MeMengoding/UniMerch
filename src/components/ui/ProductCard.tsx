@@ -5,20 +5,7 @@ import { Heart, ShoppingCart, Star, Eye, Percent } from 'lucide-react';
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  originalPrice?: number;
-  image: string;
-  rating: number;
-  reviewCount: number;
-  category: string;
-  isNew?: boolean;
-  isOnSale?: boolean;
-  discount?: number;
-}
+import { Product } from '@/types/product';
 
 interface ProductCardProps {
   product: Product;
@@ -149,7 +136,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               {Array.from({ length: 5 }, (_, i) => (
                 <Star
                   key={i}
-                  className={`w-3 h-3 ${i < Math.floor(product.rating)
+                  className={`w-3 h-3 ${i < Math.floor(product.rating || 0)
                       ? 'text-yellow-400 fill-current'
                       : 'text-neutral-300 dark:text-neutral-600'
                     }`}
@@ -157,7 +144,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               ))}
             </div>
             <span className="text-neutral-500 dark:text-neutral-400 text-xs">
-              ({product.reviewCount})
+              ({product.reviewCount || 0})
             </span>
           </div>
 
@@ -191,3 +178,4 @@ export default function ProductCard({ product }: ProductCardProps) {
     </Link>
   );
 }
+

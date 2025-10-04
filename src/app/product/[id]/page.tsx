@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, use } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, 
@@ -10,318 +10,36 @@ import {
   Minus, 
   Plus,
   Share2,
-  MessageCircle,
   Award
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-// Mock data untuk produk merchandise (same as in page.tsx)
-const mockProducts = [
-  // Totebag
-  {
-    id: 'tb-a',
-    name: 'Totebag Canvas – Desain A',
-    description: 'Totebag canvas 12oz muat A4, sablon plastisol, tali kuat untuk aktivitas kampus.',
-    price: 69000,
-    originalPrice: 89000,
-    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
-    rating: 4.7,
-    reviewCount: 128,
-    category: 'Tas & Aksesoris',
-    brand: 'UniMerch',
-    sku: 'UM-TB-A',
-    stock: 24,
-    isNew: true,
-    isOnSale: true,
-    features: [
-      'Bahan Canvas 12oz Premium',
-      'Sablon Plastisol Tahan Lama',
-      'Tali Kuat dan Nyaman',
-      'Muat Dokumen A4',
-      'Desain Minimalis',
-      'Cocok untuk Aktivitas Kampus'
-    ],
-    specifications: {
-      'Bahan': 'Canvas 12oz',
-      'Dimensi': '35 x 40 cm',
-      'Perawatan': 'Hand Wash',
-      'Asal': 'Indonesia',
-      'Ketebalan': 'Medium Weight'
-    },
-    colors: ['Natural', 'Navy', 'Black'],
-    sizes: ['One Size']
-  },
-  {
-    id: 'tb-b',
-    name: 'Totebag Canvas – Desain B',
-    description: 'Bahan canvas 12oz dengan saku dalam, cocok untuk buku A4 dan laptop tipis.',
-    price: 79000,
-    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
-    rating: 4.5,
-    reviewCount: 76,
-    category: 'Tas & Aksesoris',
-    brand: 'UniMerch',
-    sku: 'UM-TB-B',
-    stock: 18,
-    isNew: false,
-    isOnSale: false,
-    features: [
-      'Bahan Canvas 12oz Premium',
-      'Saku Dalam untuk Keamanan',
-      'Muat Laptop hingga 13 inch',
-      'Jahitan Kuat dan Rapi',
-      'Desain Fungsional',
-      'Cocok untuk Kuliah'
-    ],
-    specifications: {
-      'Bahan': 'Canvas 12oz',
-      'Dimensi': '38 x 42 cm',
-      'Perawatan': 'Hand Wash',
-      'Asal': 'Indonesia',
-      'Ketebalan': 'Medium Weight'
-    },
-    colors: ['Khaki', 'Navy', 'Black'],
-    sizes: ['One Size']
-  },
-  {
-    id: 'tb-c',
-    name: 'Totebag Premium – Desain C',
-    description: 'Canvas premium 14oz, jahitan bartack di pegangan, kapasitas besar.',
-    price: 99000,
-    originalPrice: 119000,
-    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
-    rating: 4.6,
-    reviewCount: 92,
-    category: 'Tas & Aksesoris',
-    brand: 'UniMerch',
-    sku: 'UM-TB-C',
-    stock: 15,
-    isNew: false,
-    isOnSale: true,
-    features: [
-      'Bahan Canvas Premium 14oz',
-      'Jahitan Bartack Extra Kuat',
-      'Kapasitas Besar',
-      'Handle yang Nyaman',
-      'Desain Premium',
-      'Tahan Lama'
-    ],
-    specifications: {
-      'Bahan': 'Canvas 14oz Premium',
-      'Dimensi': '40 x 45 cm',
-      'Perawatan': 'Hand Wash',
-      'Asal': 'Indonesia',
-      'Ketebalan': 'Heavy Weight'
-    },
-    colors: ['Natural', 'Black', 'Navy'],
-    sizes: ['One Size']
-  },
+interface VariantOption {
+  id: number;
+  name: string;
+}
 
-  // Bucket Hat
-  {
-    id: 'bh-a',
-    name: 'Bucket Hat – Desain A',
-    description: 'Katun drill adem, bordir logo kampus di depan, rim medium.',
-    price: 89000,
-    originalPrice: 109000,
-    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
-    rating: 4.6,
-    reviewCount: 54,
-    category: 'Aksesoris',
-    brand: 'UniMerch',
-    sku: 'UM-BH-A',
-    stock: 20,
-    isNew: false,
-    isOnSale: true,
-    features: [
-      'Bahan Katun Drill Adem',
-      'Bordir Logo Kampus',
-      'Rim Medium',
-      'Nyaman Dipakai',
-      'UV Protection',
-      'Cocok untuk Outdoor'
-    ],
-    specifications: {
-      'Bahan': 'Cotton Drill',
-      'Lingkar Kepala': '56-58 cm',
-      'Perawatan': 'Hand Wash',
-      'Asal': 'Indonesia',
-      'UV Protection': 'UPF 30+'
-    },
-    colors: ['Khaki', 'Black', 'Navy'],
-    sizes: ['S/M', 'L/XL']
-  },
-  {
-    id: 'bh-b',
-    name: 'Bucket Hat – Desain B (Hitam)',
-    description: 'Bahan katun, bordir rapi, cocok untuk outdoor & casual.',
-    price: 99000,
-    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
-    rating: 4.4,
-    reviewCount: 38,
-    category: 'Aksesoris',
-    brand: 'UniMerch',
-    sku: 'UM-BH-B',
-    stock: 12,
-    isNew: true,
-    isOnSale: false,
-    features: [
-      'Bahan Katun Premium',
-      'Bordir Rapi dan Presisi',
-      'Warna Hitam Elegan',
-      'Multifungsi',
-      'Tahan Cuaca',
-      'Style Kasual'
-    ],
-    specifications: {
-      'Bahan': 'Cotton Premium',
-      'Lingkar Kepala': '56-60 cm',
-      'Perawatan': 'Hand Wash',
-      'Asal': 'Indonesia',
-      'Warna': 'Black'
-    },
-    colors: ['Black'],
-    sizes: ['One Size']
-  },
-  {
-    id: 'bh-c',
-    name: 'Bucket Hat – Desain C (Navy)',
-    description: 'Versi navy minimalis, ringan dan nyaman dipakai harian.',
-    price: 109000,
-    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
-    rating: 4.5,
-    reviewCount: 41,
-    category: 'Aksesoris',
-    brand: 'UniMerch',
-    sku: 'UM-BH-C',
-    stock: 8,
-    isNew: true,
-    isOnSale: false,
-    features: [
-      'Desain Minimalis',
-      'Warna Navy Klasik',
-      'Bahan Ringan',
-      'Nyaman untuk Harian',
-      'Versatile Style',
-      'Premium Quality'
-    ],
-    specifications: {
-      'Bahan': 'Cotton Blend',
-      'Lingkar Kepala': '56-58 cm',
-      'Perawatan': 'Machine Wash',
-      'Asal': 'Indonesia',
-      'Warna': 'Navy'
-    },
-    colors: ['Navy'],
-    sizes: ['One Size']
-  },
+interface ProductVariant {
+  id: number;
+  name: string;
+  options: VariantOption[];
+}
 
-  // Kaos
-  {
-    id: 'tee-a',
-    name: 'Kaos – Desain A (Combed 24s)',
-    description: 'Kaos unisex cotton combed 24s, sablon plastisol, cutting regular.',
-    price: 119000,
-    originalPrice: 149000,
-    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
-    rating: 4.8,
-    reviewCount: 210,
-    category: 'Pakaian',
-    brand: 'UniMerch',
-    sku: 'UM-TEE-A',
-    stock: 30,
-    isNew: true,
-    isOnSale: true,
-    features: [
-      'Bahan Cotton Combed 24s',
-      'Sablon Plastisol Awet',
-      'Cutting Regular Fit',
-      'Unisex Design',
-      'Nyaman Dipakai',
-      'Kualitas Premium'
-    ],
-    specifications: {
-      'Bahan': 'Cotton Combed 24s',
-      'Gramasi': '180gsm',
-      'Perawatan': 'Machine Wash 30°C',
-      'Asal': 'Indonesia',
-      'Fit': 'Regular'
-    },
-    colors: ['White', 'Black', 'Navy', 'Grey'],
-    sizes: ['S', 'M', 'L', 'XL', 'XXL']
-  },
-  {
-    id: 'tee-b',
-    name: 'Kaos – Desain B (Oversize 24s)',
-    description: 'Bahan combed 24s, fit oversize, printing awet tidak mudah pecah.',
-    price: 129000,
-    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
-    rating: 4.7,
-    reviewCount: 143,
-    category: 'Pakaian',
-    brand: 'UniMerch',
-    sku: 'UM-TEE-B',
-    stock: 25,
-    isNew: false,
-    isOnSale: false,
-    features: [
-      'Bahan Cotton Combed 24s',
-      'Fit Oversize Trendy',
-      'Printing Berkualitas Tinggi',
-      'Tidak Mudah Pecah',
-      'Comfortable Wear',
-      'Modern Style'
-    ],
-    specifications: {
-      'Bahan': 'Cotton Combed 24s',
-      'Gramasi': '180gsm',
-      'Perawatan': 'Machine Wash 30°C',
-      'Asal': 'Indonesia',
-      'Fit': 'Oversize'
-    },
-    colors: ['White', 'Black', 'Khaki', 'Navy'],
-    sizes: ['S', 'M', 'L', 'XL', 'XXL']
-  },
-  {
-    id: 'tee-c',
-    name: 'Kaos – Desain C (Combed 30s)',
-    description: 'Lebih ringan dan adem, cocok untuk aktivitas harian.',
-    price: 99000,
-    originalPrice: 129000,
-    images: ['/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600', '/api/placeholder/600/600'],
-    rating: 4.6,
-    reviewCount: 98,
-    category: 'Pakaian',
-    brand: 'UniMerch',
-    sku: 'UM-TEE-C',
-    stock: 22,
-    isNew: false,
-    isOnSale: true,
-    features: [
-      'Bahan Cotton Combed 30s',
-      'Lebih Ringan dan Adem',
-      'Cocok Aktivitas Harian',
-      'Breathable Fabric',
-      'Soft Touch',
-      'Everyday Comfort'
-    ],
-    specifications: {
-      'Bahan': 'Cotton Combed 30s',
-      'Gramasi': '160gsm',
-      'Perawatan': 'Machine Wash 30°C',
-      'Asal': 'Indonesia',
-      'Fit': 'Regular'
-    },
-    colors: ['White', 'Light Grey', 'Navy', 'Black'],
-    sizes: ['S', 'M', 'L', 'XL', 'XXL']
-  }
-];
-
-// Function to get product by ID
-const getProductById = (id: string) => {
-  return mockProducts.find(product => product.id === id) || mockProducts[0];
-};
+interface Product {
+  id: number;
+  name: string;
+  description?: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  category: string;
+  stock: number;
+  isNew: boolean;
+  isOnSale: boolean;
+  hasVariants: boolean;
+  variants?: ProductVariant[];
+}
 
 const mockReviews = [
   {
@@ -350,14 +68,83 @@ const mockReviews = [
   }
 ];
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  const mockProduct = getProductById(params.id);
+export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(mockProduct.colors[0]);
-  const [selectedSize, setSelectedSize] = useState(mockProduct.sizes[0]);
+  const [selectedVariants, setSelectedVariants] = useState<{ [key: string]: string }>({});
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedSize, setSelectedSize] = useState('');
+
+  // Create multiple product images from single image with fallback
+  const productImages = product && product.image ? [
+    product.image,
+    product.image,
+    product.image,
+    product.image
+  ] : ['/api/placeholder/400/400', '/api/placeholder/400/400', '/api/placeholder/400/400', '/api/placeholder/400/400'];
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/products/${resolvedParams.id}`);
+        
+        if (!response.ok) {
+          throw new Error('Produk tidak ditemukan');
+        }
+
+        const data = await response.json();
+        setProduct(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Terjadi kesalahan');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (resolvedParams.id) {
+      fetchProduct();
+    }
+  }, [resolvedParams.id]);
+
+  // Initialize variant selections when product loads
+  useEffect(() => {
+    if (product && product.hasVariants && product.variants) {
+      const colorVariant = product.variants.find(v => 
+        v.name.toLowerCase().includes('color') || 
+        v.name.toLowerCase().includes('warna') ||
+        v.name.toLowerCase().includes('colour')
+      );
+      
+      const sizeVariant = product.variants.find(v => 
+        v.name.toLowerCase().includes('size') || 
+        v.name.toLowerCase().includes('ukuran') ||
+        v.name.toLowerCase().includes('sizing')
+      );
+      
+      // Set default selections only if variants exist and no selection made yet
+      if (colorVariant && colorVariant.options.length > 0 && !selectedColor) {
+        setSelectedColor(colorVariant.options[0].name);
+      }
+      if (sizeVariant && sizeVariant.options.length > 0 && !selectedSize) {
+        setSelectedSize(sizeVariant.options[0].name);
+      }
+    }
+  }, [product, selectedColor, selectedSize]);
+
+  const handleVariantChange = (variantName: string, optionName: string) => {
+    setSelectedVariants(prev => ({
+      ...prev,
+      [variantName]: optionName
+    }));
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -367,14 +154,53 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     }).format(price);
   };
 
-  const discountPercentage = mockProduct.originalPrice 
-    ? Math.round(((mockProduct.originalPrice - mockProduct.price) / mockProduct.originalPrice) * 100)
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-dark-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-neutral-600 dark:text-neutral-400">Memuat produk...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-dark-950 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-4">Produk Tidak Ditemukan</h1>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-6">{error}</p>
+          <Link href="/" className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
+            Kembali ke Beranda
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const discountPercentage = product.originalPrice 
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
-  const tabs = [
-    { id: 'description', label: 'Deskripsi' },
-    { id: 'reviews', label: `Ulasan (${mockProduct.reviewCount})` }
-  ];
+  // Get real variants from database
+  const productVariants = product && product.hasVariants && product.variants ? product.variants : [];
+  
+  // Get available colors and sizes from database
+  const colorVariant = productVariants.find(v => 
+    v.name.toLowerCase().includes('color') || 
+    v.name.toLowerCase().includes('warna') ||
+    v.name.toLowerCase().includes('colour')
+  );
+  
+  const sizeVariant = productVariants.find(v => 
+    v.name.toLowerCase().includes('size') || 
+    v.name.toLowerCase().includes('ukuran') ||
+    v.name.toLowerCase().includes('sizing')
+  );
+  
+  const availableColors = colorVariant ? colorVariant.options.map(o => o.name) : [];
+  const availableSizes = sizeVariant ? sizeVariant.options.map(o => o.name) : [];
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark-950 transition-colors duration-300">
@@ -394,16 +220,36 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               Toko
             </Link>
             <span>/</span>
-            <Link href={`/category/${mockProduct.category.toLowerCase()}`} className="hover:text-primary-600 transition-colors">
-              {mockProduct.category}
+            <Link href={`/category/${product.category.toLowerCase()}`} className="hover:text-primary-600 transition-colors">
+              {product.category}
             </Link>
             <span>/</span>
-            <span className="text-neutral-900 dark:text-white font-medium">{mockProduct.name}</span>
+            <span className="text-neutral-900 dark:text-white font-medium">{product.name}</span>
           </motion.nav>
         </div>
       </div>
 
       <div className="container mx-auto px-4 lg:px-6 py-6">
+        {/* Additional Simple Breadcrumb */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4"
+        >
+          <nav className="flex items-center space-x-2 text-sm text-neutral-500 dark:text-neutral-400">
+            <Link href="/" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+              Home
+            </Link>
+            <span className="text-neutral-300 dark:text-neutral-600">›</span>
+            <Link 
+              href={`/category/${product.category.toLowerCase().replace(/[^a-z0-9]/g, '-')}`} 
+              className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            >
+              {product.category}
+            </Link>
+          </nav>
+        </motion.div>
+
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -431,21 +277,25 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             {/* Main Image */}
             <div className="relative aspect-square bg-neutral-100 dark:bg-dark-800 rounded-xl overflow-hidden">
               <Image
-                src={mockProduct.images[selectedImage]}
-                alt={mockProduct.name}
+                src={productImages[selectedImage] || '/api/placeholder/400/400'}
+                alt={product?.name || 'Product Image'}
                 fill
                 className="object-cover"
                 unoptimized
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/api/placeholder/400/400';
+                }}
               />
               
               {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col space-y-2">
-                {mockProduct.isNew && (
+                {product.isNew && (
                   <span className="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">
                     NEW
                   </span>
                 )}
-                {mockProduct.isOnSale && discountPercentage > 0 && (
+                {product.isOnSale && discountPercentage > 0 && (
                   <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
                     -{discountPercentage}%
                   </span>
@@ -460,7 +310,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
             {/* Thumbnail Images */}
             <div className="grid grid-cols-4 gap-2">
-              {mockProduct.images.map((image, index) => (
+              {productImages.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
@@ -469,11 +319,15 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                   }`}
                 >
                   <Image
-                    src={image}
-                    alt={`${mockProduct.name} ${index + 1}`}
+                    src={image || '/api/placeholder/400/400'}
+                    alt={`${product?.name || 'Product'} ${index + 1}`}
                     fill
                     className="object-cover"
                     unoptimized
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/api/placeholder/400/400';
+                    }}
                   />
                 </button>
               ))}
@@ -490,10 +344,10 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             {/* Product Name */}
             <div className="space-y-2">
               <h1 className="text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white leading-tight">
-                {mockProduct.name}
+                {product.name}
               </h1>
               <div className="text-sm text-neutral-500 dark:text-neutral-400">
-                Brand: {mockProduct.brand} | SKU: {mockProduct.sku}
+                Brand: UniMerch | SKU: UM-{product.id}
               </div>
             </div>
 
@@ -505,15 +359,13 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                     <Star
                       key={i}
                       className={`w-4 h-4 ${
-                        i < Math.floor(mockProduct.rating)
-                          ? 'text-yellow-400 fill-current'
-                          : 'text-neutral-300 dark:text-neutral-600'
+                        i < 4 ? 'text-yellow-400 fill-current' : 'text-neutral-300 dark:text-neutral-600'
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-sm font-medium text-neutral-900 dark:text-white">{mockProduct.rating}</span>
-                <span className="text-sm text-neutral-500 dark:text-neutral-400">({mockProduct.reviewCount} ulasan)</span>
+                <span className="text-sm font-medium text-neutral-900 dark:text-white">4.5</span>
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">(89 ulasan)</span>
               </div>
             </div>
 
@@ -522,12 +374,12 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Harga Satuan:</h3>
               <div className="flex items-center space-x-3">
                 <span className="text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white">
-                  {formatPrice(mockProduct.price)}
+                  {formatPrice(product.price)}
                 </span>
-                {mockProduct.originalPrice && mockProduct.originalPrice > mockProduct.price && (
+                {product.originalPrice && product.originalPrice > product.price && (
                   <>
                     <span className="text-lg text-neutral-500 dark:text-neutral-400 line-through">
-                      {formatPrice(mockProduct.originalPrice)}
+                      {formatPrice(product.originalPrice)}
                     </span>
                     {discountPercentage > 0 && (
                       <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-sm font-semibold px-2 py-1 rounded">
@@ -539,50 +391,87 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               </div>
             </div>
 
-            {/* Item Variants */}
-            <div className="space-y-3">
-              <h3 className="font-medium text-neutral-900 dark:text-white">Pilihan Item:</h3>
-              
-              {/* Color Selection */}
-              <div className="space-y-2">
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">Warna: {selectedColor}</span>
-                <div className="flex space-x-2">
-                  {mockProduct.colors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
-                        selectedColor === color
-                          ? 'border-primary-600 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
-                          : 'border-neutral-300 dark:border-dark-600 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-dark-500'
-                      }`}
-                    >
-                      {color}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            {/* Item Variants - Only show if product has variants */}
+            {product.hasVariants && productVariants.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-medium text-neutral-900 dark:text-white">Pilihan Item:</h3>
+                
+                {/* Color Selection - Only show if color variant exists */}
+                {colorVariant && availableColors.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                      {colorVariant.name}: {selectedColor}
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {availableColors.map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => setSelectedColor(color)}
+                          className={`px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                            selectedColor === color
+                              ? 'border-primary-600 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+                              : 'border-neutral-300 dark:border-dark-600 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-dark-500'
+                          }`}
+                        >
+                          {color}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-              {/* Size Selection */}
-              <div className="space-y-2">
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">Ukuran: {selectedSize}</span>
-                <div className="flex space-x-2">
-                  {mockProduct.sizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
-                        selectedSize === size
-                          ? 'border-primary-600 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
-                          : 'border-neutral-300 dark:border-dark-600 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-dark-500'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
+                {/* Size Selection - Only show if size variant exists */}
+                {sizeVariant && availableSizes.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                      {sizeVariant.name}: {selectedSize}
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {availableSizes.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                            selectedSize === size
+                              ? 'border-primary-600 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+                              : 'border-neutral-300 dark:border-dark-600 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-dark-500'
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Other Variants - Show any other variants dynamically */}
+                {productVariants
+                  .filter(v => v !== colorVariant && v !== sizeVariant)
+                  .map((variant) => (
+                    <div key={variant.id} className="space-y-2">
+                      <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                        {variant.name}: {selectedVariants[variant.name] || variant.options[0]?.name || ''}
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {variant.options.map((option) => (
+                          <button
+                            key={option.id}
+                            onClick={() => handleVariantChange(variant.name, option.name)}
+                            className={`px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                              (selectedVariants[variant.name] || variant.options[0]?.name) === option.name
+                                ? 'border-primary-600 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+                                : 'border-neutral-300 dark:border-dark-600 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-dark-500'
+                            }`}
+                          >
+                            {option.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                }
               </div>
-            </div>
+            )}
 
             {/* Deskripsi dan Ulasan Tabs */}
             <div className="border-t border-neutral-200 dark:border-dark-700 pt-6">
@@ -605,7 +494,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
                   }`}
                 >
-                  Ulasan ({mockProduct.reviewCount})
+                  Ulasan (89)
                 </button>
               </div>
 
@@ -617,17 +506,29 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-4"
                   >
-                    <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed">{mockProduct.description}</p>
+                    <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed">
+                      {product.description || 'Produk berkualitas tinggi dengan standar terbaik. Cocok untuk berbagai kebutuhan dan aktivitas sehari-hari.'}
+                    </p>
                     
                     <div>
                       <h4 className="font-semibold text-neutral-900 dark:text-white mb-2">Fitur Utama:</h4>
                       <ul className="space-y-1">
-                        {mockProduct.features.slice(0, 4).map((feature, index) => (
-                          <li key={index} className="flex items-start space-x-2 text-neutral-600 dark:text-neutral-300 text-sm">
-                            <Award className="w-4 h-4 text-primary-600 dark:text-primary-400 mt-0.5 flex-shrink-0" />
-                            <span>{feature}</span>
-                          </li>
-                        ))}
+                        <li className="flex items-start space-x-2 text-neutral-600 dark:text-neutral-300 text-sm">
+                          <Award className="w-4 h-4 text-primary-600 dark:text-primary-400 mt-0.5 flex-shrink-0" />
+                          <span>Kualitas Premium</span>
+                        </li>
+                        <li className="flex items-start space-x-2 text-neutral-600 dark:text-neutral-300 text-sm">
+                          <Award className="w-4 h-4 text-primary-600 dark:text-primary-400 mt-0.5 flex-shrink-0" />
+                          <span>Garansi Kualitas</span>
+                        </li>
+                        <li className="flex items-start space-x-2 text-neutral-600 dark:text-neutral-300 text-sm">
+                          <Award className="w-4 h-4 text-primary-600 dark:text-primary-400 mt-0.5 flex-shrink-0" />
+                          <span>Desain Eksklusif</span>
+                        </li>
+                        <li className="flex items-start space-x-2 text-neutral-600 dark:text-neutral-300 text-sm">
+                          <Award className="w-4 h-4 text-primary-600 dark:text-primary-400 mt-0.5 flex-shrink-0" />
+                          <span>Tahan Lama</span>
+                        </li>
                       </ul>
                     </div>
                   </motion.div>
@@ -685,9 +586,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
               {/* Stock Status */}
               <div className="flex items-center space-x-2 bg-neutral-50 dark:bg-dark-800 rounded-lg p-3">
-                <div className={`w-3 h-3 rounded-full ${mockProduct.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
-                <span className={`text-sm font-medium ${mockProduct.stock > 0 ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-                  {mockProduct.stock > 0 ? `Stok tersedia (${mockProduct.stock} item)` : 'Stok habis'}
+                <div className={`w-3 h-3 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
+                <span className={`text-sm font-medium ${product.stock > 0 ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                  {product.stock > 0 ? `Stok tersedia (${product.stock} item)` : 'Stok habis'}
                 </span>
               </div>
 
@@ -709,16 +610,16 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       {quantity}
                     </span>
                     <button
-                      onClick={() => setQuantity(Math.min(mockProduct.stock, quantity + 1))}
+                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
                       className="p-3 hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors rounded-r-lg disabled:opacity-50"
-                      disabled={quantity >= mockProduct.stock}
+                      disabled={quantity >= product.stock}
                     >
                       <Plus className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                     </button>
                   </div>
                 </div>
                 <p className="text-xs text-center text-neutral-500 dark:text-neutral-400">
-                  Maksimal {mockProduct.stock} item
+                  Maksimal {product.stock} item
                 </p>
               </div>
 
@@ -727,7 +628,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-neutral-600 dark:text-neutral-400">Harga satuan:</span>
-                    <span className="font-medium text-neutral-900 dark:text-white">{formatPrice(mockProduct.price)}</span>
+                    <span className="font-medium text-neutral-900 dark:text-white">{formatPrice(product.price)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-neutral-600 dark:text-neutral-400">Jumlah:</span>
@@ -737,7 +638,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                   <div className="flex justify-between">
                     <span className="font-semibold text-neutral-900 dark:text-white">Total Harga:</span>
                     <span className="font-bold text-xl text-primary-600 dark:text-primary-400">
-                      {formatPrice(mockProduct.price * quantity)}
+                      {formatPrice(product.price * quantity)}
                     </span>
                   </div>
                 </div>
@@ -748,22 +649,22 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 {/* Add to Cart Button */}
                 <motion.button
                   className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-6 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
-                  whileHover={{ scale: mockProduct.stock > 0 ? 1.02 : 1 }}
-                  whileTap={{ scale: mockProduct.stock > 0 ? 0.98 : 1 }}
-                  disabled={mockProduct.stock === 0}
+                  whileHover={{ scale: product.stock > 0 ? 1.02 : 1 }}
+                  whileTap={{ scale: product.stock > 0 ? 0.98 : 1 }}
+                  disabled={product.stock === 0}
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  <span>{mockProduct.stock > 0 ? 'Tambah ke Keranjang' : 'Stok Habis'}</span>
+                  <span>{product.stock > 0 ? 'Tambah ke Keranjang' : 'Stok Habis'}</span>
                 </motion.button>
 
                 {/* Buy Now Button */}
                 <motion.button
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
-                  whileHover={{ scale: mockProduct.stock > 0 ? 1.02 : 1 }}
-                  whileTap={{ scale: mockProduct.stock > 0 ? 0.98 : 1 }}
-                  disabled={mockProduct.stock === 0}
+                  whileHover={{ scale: product.stock > 0 ? 1.02 : 1 }}
+                  whileTap={{ scale: product.stock > 0 ? 0.98 : 1 }}
+                  disabled={product.stock === 0}
                 >
-                  {mockProduct.stock > 0 ? 'Beli Sekarang' : 'Stok Habis'}
+                  {product.stock > 0 ? 'Beli Sekarang' : 'Stok Habis'}
                 </motion.button>
 
                 {/* Like/Wishlist Button */}

@@ -1,133 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Grid, List, SlidersHorizontal } from 'lucide-react';
 import HeroSection from '@/components/ui/HeroSection';
 import ProductCard from '@/components/ui/ProductCard';
 import FilterSidebar from '@/components/ui/FilterSidebar';
-
-// Mock data untuk produk merchandise (Totebag, Bucket Hat, Kaos)
-const mockProducts = [
-  // Totebag
-  {
-    id: 'tb-a',
-    name: 'Totebag Canvas – Desain A',
-    description: 'Totebag canvas 12oz muat A4, sablon plastisol, tali kuat untuk aktivitas kampus.',
-    price: 69000,
-    originalPrice: 89000,
-    image: '/api/placeholder/400/400',
-    rating: 4.7,
-    reviewCount: 128,
-    category: 'Tas & Aksesoris',
-    isNew: true,
-    isOnSale: true,
-  },
-  {
-    id: 'tb-b',
-    name: 'Totebag Canvas – Desain B',
-    description: 'Bahan canvas 12oz dengan saku dalam, cocok untuk buku A4 dan laptop tipis.',
-    price: 79000,
-    image: '/api/placeholder/400/400',
-    rating: 4.5,
-    reviewCount: 76,
-    category: 'Tas & Aksesoris',
-    isNew: false,
-    isOnSale: false,
-  },
-  {
-    id: 'tb-c',
-    name: 'Totebag Premium – Desain C',
-    description: 'Canvas premium 14oz, jahitan bartack di pegangan, kapasitas besar.',
-    price: 99000,
-    originalPrice: 119000,
-    image: '/api/placeholder/400/400',
-    rating: 4.6,
-    reviewCount: 92,
-    category: 'Tas & Aksesoris',
-    isNew: false,
-    isOnSale: true,
-  },
-
-  // Bucket Hat
-  {
-    id: 'bh-a',
-    name: 'Bucket Hat – Desain A',
-    description: 'Katun drill adem, bordir logo kampus di depan, rim medium.',
-    price: 89000,
-    originalPrice: 109000,
-    image: '/api/placeholder/400/400',
-    rating: 4.6,
-    reviewCount: 54,
-    category: 'Aksesoris',
-    isNew: false,
-    isOnSale: true,
-  },
-  {
-    id: 'bh-b',
-    name: 'Bucket Hat – Desain B (Hitam)',
-    description: 'Bahan katun, bordir rapi, cocok untuk outdoor & casual.',
-    price: 99000,
-    image: '/api/placeholder/400/400',
-    rating: 4.4,
-    reviewCount: 38,
-    category: 'Aksesoris',
-    isNew: true,
-    isOnSale: false,
-  },
-  {
-    id: 'bh-c',
-    name: 'Bucket Hat – Desain C (Navy)',
-    description: 'Versi navy minimalis, ringan dan nyaman dipakai harian.',
-    price: 109000,
-    image: '/api/placeholder/400/400',
-    rating: 4.5,
-    reviewCount: 41,
-    category: 'Aksesoris',
-    isNew: true,
-    isOnSale: false,
-  },
-
-  // Kaos
-  {
-    id: 'tee-a',
-    name: 'Kaos – Desain A (Combed 24s)',
-    description: 'Kaos unisex cotton combed 24s, sablon plastisol, cutting regular.',
-    price: 119000,
-    originalPrice: 149000,
-    image: '/api/placeholder/400/400',
-    rating: 4.8,
-    reviewCount: 210,
-    category: 'Pakaian',
-    isNew: true,
-    isOnSale: true,
-  },
-  {
-    id: 'tee-b',
-    name: 'Kaos – Desain B (Oversize 24s)',
-    description: 'Bahan combed 24s, fit oversize, printing awet tidak mudah pecah.',
-    price: 129000,
-    image: '/api/placeholder/400/400',
-    rating: 4.7,
-    reviewCount: 143,
-    category: 'Pakaian',
-    isNew: false,
-    isOnSale: false,
-  },
-  {
-    id: 'tee-c',
-    name: 'Kaos – Desain C (Combed 30s)',
-    description: 'Lebih ringan dan adem, cocok untuk aktivitas harian.',
-    price: 99000,
-    originalPrice: 129000,
-    image: '/api/placeholder/400/400',
-    rating: 4.6,
-    reviewCount: 98,
-    category: 'Pakaian',
-    isNew: false,
-    isOnSale: true,
-  },
-];
+import { Product } from '@/types/product';
 
 // Mock data untuk filter merchandise
 const mockFilters = [
@@ -172,6 +51,31 @@ export default function Home() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('featured');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/products');
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data);
+      } else {
+        // Fallback to empty array if API fails
+        setProducts([]);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      // Fallback to empty array if fetch fails
+      setProducts([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const sortOptions = [
     { value: 'featured', label: 'Unggulan' },
@@ -182,7 +86,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-dark-950 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-dark-950 transition-colors duration-300 pt-16">
       {/* Hero Section */}
       <HeroSection />
 
@@ -236,7 +140,7 @@ export default function Home() {
 
                   {/* Results Count */}
                   <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                    Menampilkan {mockProducts.length} produk
+                    Menampilkan {products.length} produk
                   </span>
                 </div>
 
@@ -295,17 +199,44 @@ export default function Home() {
                     : 'grid-cols-1'
                 }`}
               >
-                {mockProducts.map((product, index) => (
-                  <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                  >
-                    <ProductCard product={product} />
-                  </motion.div>
-                ))}
+                {isLoading ? (
+                  // Loading skeletons
+                  Array.from({ length: 8 }).map((_, index) => (
+                    <div key={index} className="bg-white dark:bg-dark-800 rounded-lg border border-neutral-200 dark:border-dark-700 overflow-hidden animate-pulse">
+                      <div className="aspect-square bg-neutral-200 dark:bg-dark-700"></div>
+                      <div className="p-3 sm:p-4">
+                        <div className="h-4 bg-neutral-200 dark:bg-dark-700 rounded mb-2"></div>
+                        <div className="h-3 bg-neutral-200 dark:bg-dark-700 rounded mb-3 w-3/4"></div>
+                        <div className="h-5 bg-neutral-200 dark:bg-dark-700 rounded"></div>
+                      </div>
+                    </div>
+                  ))
+                ) : products.length > 0 ? (
+                  products.map((product: Product, index: number) => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                    >
+                      <ProductCard product={product} />
+                    </motion.div>
+                  ))
+                ) : (
+                  // Empty state
+                  <div className="col-span-full text-center py-12">
+                    <div className="w-16 h-16 bg-neutral-200 dark:bg-dark-700 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <span className="text-2xl">📦</span>
+                    </div>
+                    <h3 className="text-lg font-medium text-neutral-900 dark:text-white mb-2">
+                      Belum ada produk
+                    </h3>
+                    <p className="text-neutral-600 dark:text-neutral-400">
+                      Produk akan muncul disini setelah admin menambahkannya
+                    </p>
+                  </div>
+                )}
               </motion.div>
 
               {/* Load More Button */}
