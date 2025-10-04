@@ -12,7 +12,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (userData: User, token: string) => void;
+  login: (userData: User) => void;
   logout: () => void;
   updateUser: (userData: User) => void;
 }
@@ -28,33 +28,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuthStatus();
   }, []);
 
-  const checkAuthStatus = () => {
+  const checkAuthStatus = async () => {
     try {
-      const token = localStorage.getItem('userToken');
-      const userData = localStorage.getItem('userData');
+      setIsLoading(true);
       
-      if (token && userData) {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
+      // Check if user is authenticated via API
+      const response = await fetch('/api/auth/verify', {
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+      } else {
+        setUser(null);
       }
     } catch (error) {
-      console.error('Error parsing user data:', error);
-      localStorage.removeItem('userToken');
-      localStorage.removeItem('userData');
+      console.error('Error checking auth status:', error);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const login = (userData: User, token: string) => {
-    localStorage.setItem('userToken', token);
-    localStorage.setItem('userData', JSON.stringify(userData));
+  const login = (userData: User) => {
+    // Token is already set as httpOnly cookie by the server
     setUser(userData);
   };
 
-  const logout = () => {
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userData');
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+    
     setUser(null);
     
     // Redirect based on current path
@@ -68,7 +79,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateUser = (userData: User) => {
-    localStorage.setItem('userData', JSON.stringify(userData));
     setUser(userData);
   };
 

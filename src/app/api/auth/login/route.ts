@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { findUserByEmail } from '@/lib/database';
+
+interface User {
+  id: number;
+  email: string;
+  password: string;
+  name: string | null;
+  role: string;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,9 +24,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user in database with retry logic for connection issues
-    let user;
+    let user: User | null;
     try {
-      user = await findUserByEmail(email);
+      user = await findUserByEmail(email) as User | null;
     } catch (dbError) {
       console.error('Database connection error:', dbError);
       return NextResponse.json(
@@ -42,15 +51,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate simple token (in production, use proper JWT)
-    const token = 'user-token-' + user.id + '-' + Date.now();
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        userId: user.id, 
+        email: user.email, 
+        role: user.role 
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: '7d' }
+    );
     
     // Determine redirect URL based on role
     const redirectUrl = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/dashboard';
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: 'Login successful',
-      token,
       redirectUrl,
       user: {
         id: user.id,
@@ -59,6 +75,16 @@ export async function POST(request: NextRequest) {
         role: user.role
       }
     });
+
+    // Set HTTP-only cookie
+    response.cookies.set('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+    });
+
+    return response;
 
   } catch (error) {
     console.error('Login error:', error);

@@ -37,7 +37,7 @@ export default function Login() {
 
       if (response.ok) {
         // Use AuthContext to handle login
-        login(data.user, data.token);
+        login(data.user);
         
         // Show success message with react-hot-toast
         toast.success(`Halo ${data.user.name}👋`);

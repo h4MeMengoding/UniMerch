@@ -23,7 +23,7 @@ async function seedAdmin() {
       data: {
         email: 'pkkmb@unimerch.id',
         password: hashedPassword,
-        name: 'Admin UniMerch',
+        name: 'PKKMB UNNES',
         phone: '081234567890',
         role: 'ADMIN'
       }

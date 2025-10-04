@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/providers/AuthProvider';
 
 interface VariantOption {
   id: number;
@@ -70,6 +72,9 @@ const mockReviews = [
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
+  
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,6 +85,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [activeTab, setActiveTab] = useState('description');
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false);
 
   // Create multiple product images from single image with fallback
   const productImages = product && product.image ? [
@@ -152,6 +158,75 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       currency: 'IDR',
       minimumFractionDigits: 0,
     }).format(price);
+  };
+
+  const handleBuyNow = async () => {
+    // Check if user is logged in
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    if (!product || product.stock === 0) {
+      alert('Produk tidak tersedia');
+      return;
+    }
+
+    if (quantity > product.stock) {
+      alert('Jumlah melebihi stok yang tersedia');
+      return;
+    }
+
+    setIsProcessingOrder(true);
+
+    try {
+      // Get selected variant options IDs
+      const selectedVariantIds: number[] = [];
+      
+      if (product.hasVariants && product.variants) {
+        product.variants.forEach(variant => {
+          const selectedOption = selectedVariants[variant.name];
+          if (selectedOption) {
+            const option = variant.options.find(opt => opt.name === selectedOption);
+            if (option) {
+              selectedVariantIds.push(option.id);
+            }
+          }
+        });
+      }
+
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          quantity,
+          variantOptions: selectedVariantIds,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal membuat pesanan');
+      }
+
+      // Redirect to payment
+      if (data.paymentUrl) {
+        window.open(data.paymentUrl, '_blank');
+        // Also redirect to user dashboard to see order
+        router.push('/user/dashboard');
+      } else {
+        throw new Error('Payment URL tidak tersedia');
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      alert(error instanceof Error ? error.message : 'Terjadi kesalahan saat membuat pesanan');
+    } finally {
+      setIsProcessingOrder(false);
+    }
   };
 
   if (loading) {
@@ -659,12 +734,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
                 {/* Buy Now Button */}
                 <motion.button
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
-                  whileHover={{ scale: product.stock > 0 ? 1.02 : 1 }}
-                  whileTap={{ scale: product.stock > 0 ? 0.98 : 1 }}
-                  disabled={product.stock === 0}
+                  onClick={handleBuyNow}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  whileHover={{ scale: (product.stock > 0 && !isProcessingOrder) ? 1.02 : 1 }}
+                  whileTap={{ scale: (product.stock > 0 && !isProcessingOrder) ? 0.98 : 1 }}
+                  disabled={product.stock === 0 || isProcessingOrder}
                 >
-                  {product.stock > 0 ? 'Beli Sekarang' : 'Stok Habis'}
+                  {isProcessingOrder ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Memproses...</span>
+                    </>
+                  ) : product.stock > 0 ? (
+                    <span>Beli Sekarang</span>
+                  ) : (
+                    <span>Stok Habis</span>
+                  )}
                 </motion.button>
 
                 {/* Like/Wishlist Button */}

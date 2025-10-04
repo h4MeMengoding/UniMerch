@@ -184,11 +184,11 @@ export default function Navbar() {
                   <>
                     <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
                       <span className="text-white text-sm font-medium">
-                        {user.name?.charAt(0).toUpperCase() || 'U'}
+                        {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
                       </span>
                     </div>
                     <span className="hidden lg:block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                      {user.name}
+                      {user.name || user.email?.split('@')[0] || 'User'}
                     </span>
                     <ChevronDown className="hidden lg:block w-4 h-4 text-neutral-500" />
                   </>
@@ -219,12 +219,12 @@ export default function Navbar() {
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
                               <span className="text-white font-medium">
-                                {user.name?.charAt(0).toUpperCase() || 'U'}
+                                {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
                               </span>
                             </div>
                             <div>
                               <p className="text-sm font-semibold text-neutral-900 dark:text-white">
-                                {user.name}
+                                {user.name || user.email?.split('@')[0] || 'User'}
                               </p>
                               <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                 {user.email}
