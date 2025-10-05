@@ -16,6 +16,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/AuthProvider';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 interface VariantOption {
   id: number;
@@ -232,7 +233,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     return (
       <div className="min-h-screen bg-white dark:bg-dark-950 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
+          <LoadingSpinner size="lg" />
           <p className="mt-4 text-neutral-600 dark:text-neutral-400">Memuat produk...</p>
         </div>
       </div>
@@ -741,8 +742,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 >
                   {isProcessingOrder ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      <span>Memproses...</span>
+                      <LoadingSpinner size="sm" />
+                      <span className="ml-2">Memproses...</span>
                     </>
                   ) : product.stock > 0 ? (
                     <span>Beli Sekarang</span>

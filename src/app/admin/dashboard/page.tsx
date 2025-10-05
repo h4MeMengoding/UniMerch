@@ -13,6 +13,7 @@ import {
 import AdminLayout from '@/components/layout/AdminLayout';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useRouter } from 'next/navigation';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
@@ -48,8 +49,8 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-dark-950 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-neutral-600 dark:text-neutral-400">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-neutral-600 dark:text-neutral-400">
             {authLoading ? 'Memverifikasi akses...' : 'Memuat dashboard...'}
           </p>
         </div>
@@ -123,7 +124,7 @@ export default function AdminDashboard() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-dark-950 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

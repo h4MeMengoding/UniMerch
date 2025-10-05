@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import Image from 'next/image';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 interface Product {
   id: number;
@@ -480,7 +481,7 @@ export default function AdminProducts() {
     return (
       <AdminLayout currentPage="manage-products">
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <LoadingSpinner size="lg" />
         </div>
       </AdminLayout>
     );

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/providers/AuthProvider';
 import { toast } from 'react-toastify';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -166,8 +167,8 @@ export default function Login() {
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Signing in...
+                  <LoadingSpinner size="sm" />
+                  <span className="ml-2">Signing in...</span>
                 </div>
               ) : (
                 'Sign In'

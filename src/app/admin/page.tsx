@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -18,7 +19,10 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-dark-950 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      <div className="text-center">
+        <LoadingSpinner size="lg" />
+        <p className="mt-4 text-neutral-600 dark:text-neutral-400">Memuat...</p>
+      </div>
     </div>
   );
 }

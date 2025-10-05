@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Tags, Plus, Edit, Trash2, X, Save } from 'lucide-react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { toast } from 'react-toastify';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 interface Category {
   id: number;
@@ -165,7 +166,7 @@ export default function ProductCategories() {
     return (
       <AdminLayout currentPage="categories">
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500"></div>
+          <LoadingSpinner size="lg" />
         </div>
       </AdminLayout>
     );
@@ -347,8 +348,8 @@ export default function ProductCategories() {
                     >
                       {isSubmitting ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Menyimpan...</span>
+                          <LoadingSpinner size="sm" />
+                          <span className="ml-2">Menyimpan...</span>
                         </>
                       ) : (
                         <>
@@ -447,8 +448,8 @@ export default function ProductCategories() {
                     >
                       {isSubmitting ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Menyimpan...</span>
+                          <LoadingSpinner size="sm" />
+                          <span className="ml-2">Menyimpan...</span>
                         </>
                       ) : (
                         <>
