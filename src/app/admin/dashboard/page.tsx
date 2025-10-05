@@ -21,7 +21,9 @@ export default function AdminDashboard() {
     totalProducts: 0,
     totalOrders: 0,
     totalRevenue: 0,
-    totalUsers: 0
+    totalUsers: 0,
+    pendingOrders: 0,
+    completedOrders: 0
   });
 
   // Protect this route - require ADMIN role
@@ -34,13 +36,34 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (authLoading) return;
     
-    // Fetch actual stats (for now using mock data)
-    setStats({
-      totalProducts: 8,
-      totalOrders: 24,
-      totalRevenue: 2450000,
-      totalUsers: 156
-    });
+    // Fetch actual stats from APIs
+    Promise.all([
+      fetch('/api/admin/products').then(res => res.json()),
+      fetch('/api/admin/orders').then(res => res.json()),
+      fetch('/api/admin/users').then(res => res.json()).catch(() => ({ users: [] }))
+    ]).then(([productsData, ordersData, usersData]) => {
+      const orders = ordersData.orders || [];
+      const totalRevenue = orders
+        .filter((order: any) => order.status !== 'BELUM_DIBAYAR')
+        .reduce((sum: number, order: any) => sum + order.totalAmount, 0);
+      
+      const pendingOrders = orders.filter((order: any) => 
+        order.status === 'DIBAYAR' || order.status === 'SIAP_DIAMBIL'
+      ).length;
+      
+      const completedOrders = orders.filter((order: any) => 
+        order.status === 'SUDAH_DIAMBIL' || order.status === 'SELESAI'
+      ).length;
+
+      setStats({
+        totalProducts: Array.isArray(productsData) ? productsData.length : 0,
+        totalOrders: orders.length,
+        totalRevenue,
+        totalUsers: Array.isArray(usersData.users) ? usersData.users.length : 0,
+        pendingOrders,
+        completedOrders
+      });
+    }).catch(console.error);
 
     setIsLoading(false);
   }, [authLoading]);
@@ -62,7 +85,7 @@ export default function AdminDashboard() {
     {
       title: 'Total Produk',
       value: stats.totalProducts.toString(),
-      change: '+2 bulan ini',
+      change: `${stats.totalProducts} produk tersedia`,
       icon: Package,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
@@ -71,25 +94,25 @@ export default function AdminDashboard() {
     {
       title: 'Total Pesanan',
       value: stats.totalOrders.toString(),
-      change: '+5 minggu ini',
+      change: `${stats.pendingOrders} perlu diproses`,
       icon: ShoppingBag,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
-      href: '#'
+      href: '/admin/orders'
     },
     {
       title: 'Pendapatan',
       value: `Rp ${stats.totalRevenue.toLocaleString('id-ID')}`,
-      change: '+15% vs bulan lalu',
+      change: `Dari ${stats.completedOrders} pesanan selesai`,
       icon: DollarSign,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
-      href: '#'
+      href: '/admin/orders'
     },
     {
       title: 'Total Pengguna',
       value: stats.totalUsers.toString(),
-      change: '+12 bulan ini',
+      change: `${stats.totalUsers} pengguna terdaftar`,
       icon: Users,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
@@ -98,6 +121,13 @@ export default function AdminDashboard() {
   ];
 
   const quickActions = [
+    {
+      title: 'Kelola Pesanan',
+      description: 'Lihat dan update status pesanan pelanggan',
+      icon: ShoppingBag,
+      color: 'bg-green-600 hover:bg-green-700',
+      href: '/admin/orders'
+    },
     {
       title: 'Kelola Produk',
       description: 'Tambah, edit, dan hapus produk merchandise',
@@ -109,15 +139,8 @@ export default function AdminDashboard() {
       title: 'Lihat Toko',
       description: 'Buka halaman utama toko untuk melihat tampilan customer',
       icon: Eye,
-      color: 'bg-green-600 hover:bg-green-700',
-      href: '/'
-    },
-    {
-      title: 'Laporan Penjualan',
-      description: 'Lihat analytics dan laporan penjualan',
-      icon: TrendingUp,
       color: 'bg-purple-600 hover:bg-purple-700',
-      href: '#'
+      href: '/'
     }
   ];
 

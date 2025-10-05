@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { 
   Package, 
@@ -10,7 +10,9 @@ import {
   LogOut,
   ChevronLeft,
   ChevronDown,
-  Tags
+  Tags,
+  ShoppingCart,
+  ClipboardList
 } from 'lucide-react';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
@@ -23,9 +25,26 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children, currentPage = 'dashboard' }: AdminLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(['products']); // Products menu expanded by default
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const { logout } = useAuth();
   const router = useRouter();
+
+  // Auto-expand menu based on current page
+  useEffect(() => {
+    const autoExpandMenus = [];
+    
+    // Check if current page belongs to products submenu
+    if (['manage-products', 'categories'].includes(currentPage)) {
+      autoExpandMenus.push('products');
+    }
+    
+    // Check if current page belongs to orders submenu
+    if (['manage-orders'].includes(currentPage)) {
+      autoExpandMenus.push('orders');
+    }
+    
+    setExpandedMenus(autoExpandMenus);
+  }, [currentPage]);
 
   const handleLogout = () => {
     logout(); // This will handle redirect automatically
@@ -45,6 +64,20 @@ export default function AdminLayout({ children, currentPage = 'dashboard' }: Adm
       name: 'Dashboard',
       icon: Home,
       href: '/admin/dashboard'
+    },
+    {
+      id: 'orders',
+      name: 'Pesanan',
+      icon: ShoppingCart,
+      href: '#', // No direct page, only submenu
+      submenu: [
+        {
+          id: 'manage-orders',
+          name: 'Kelola Pesanan',
+          href: '/admin/orders',
+          icon: ClipboardList
+        }
+      ]
     },
     {
       id: 'products',
