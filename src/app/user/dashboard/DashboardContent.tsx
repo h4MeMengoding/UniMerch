@@ -40,6 +40,111 @@ export default function DashboardContent() {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
+  // Format order code helper function
+  const formatOrderCode = (orderId: number, createdAt: string) => {
+    try {
+      const date = new Date(createdAt);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date for order code:', createdAt);
+        return `#${String(orderId).padStart(8, '0')}`; // Fallback to old format
+      }
+      
+      // Get date components in UTC to avoid timezone issues
+      const year = String(date.getUTCFullYear()).slice(-2); // Last 2 digits of year
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Month with leading zero
+      const day = String(date.getUTCDate()).padStart(2, '0'); // Day with leading zero
+      
+      // Handle order ID overflow (max 4 digits = 9999)
+      const orderNum = orderId > 9999 
+        ? String(orderId % 10000).padStart(4, '0') // Take last 4 digits if overflow
+        : String(orderId).padStart(4, '0'); // Normal padding
+      
+      return `#${year}${month}${day}${orderNum}`;
+    } catch (error) {
+      console.error('Error formatting order code:', error);
+      return `#${String(orderId).padStart(8, '0')}`; // Fallback to old format
+    }
+  };
+
+  // Format date helper function
+  const formatDate = (dateString: string) => {
+    try {
+      // Handle different date string formats
+      let date: Date;
+      
+      // If it's already a valid ISO string or standard format
+      if (dateString.includes('T') || dateString.includes('Z')) {
+        date = new Date(dateString);
+      } else {
+        // Try parsing as-is first
+        date = new Date(dateString);
+      }
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date string:', dateString);
+        return 'Tanggal tidak valid';
+      }
+      
+      // Format with Indonesian locale and Jakarta timezone
+      const options: Intl.DateTimeFormatOptions = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: 'Asia/Jakarta'
+      };
+      
+      return date.toLocaleDateString('id-ID', options);
+    } catch (error) {
+      console.error('Error formatting date:', error, 'for dateString:', dateString);
+      return 'Tanggal tidak valid';
+    }
+  };
+
+  // Format date with time helper function
+  const formatDateTime = (dateString: string) => {
+    try {
+      let date: Date;
+      
+      if (dateString.includes('T') || dateString.includes('Z')) {
+        date = new Date(dateString);
+      } else {
+        date = new Date(dateString);
+      }
+      
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date string:', dateString);
+        return 'Tanggal tidak valid';
+      }
+      
+      const dateOptions: Intl.DateTimeFormatOptions = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: 'Asia/Jakarta'
+      };
+      
+      const timeOptions: Intl.DateTimeFormatOptions = {
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Asia/Jakarta',
+        hour12: false
+      };
+      
+      const dateStr = date.toLocaleDateString('id-ID', dateOptions);
+      const timeStr = date.toLocaleTimeString('id-ID', timeOptions);
+      
+      return `${dateStr} pukul ${timeStr} WIB`;
+    } catch (error) {
+      console.error('Error formatting datetime:', error, 'for dateString:', dateString);
+      return 'Tanggal tidak valid';
+    }
+  };
+
   // Calculate statistics from orders
   const calculateStats = (orders: Order[]) => {
     const totalOrders = orders.length;
@@ -109,7 +214,10 @@ export default function DashboardContent() {
   }, [fetchOrders]);
 
   const showStatusUpdateNotification = (update: PaymentUpdate) => {
-    const message = `Pesanan #${String(update.orderId).padStart(8, '0')} - Status pembayaran diperbarui: ${update.newPaymentStatus === 'PAID' ? 'Dibayar' : update.newPaymentStatus}`;
+    // Find the order to get created date for proper code formatting
+    const order = orders.find(o => o.id === update.orderId);
+    const orderCode = order ? formatOrderCode(update.orderId, order.createdAt) : `#${String(update.orderId).padStart(8, '0')}`;
+    const message = `Pesanan ${orderCode} - Status pembayaran diperbarui: ${update.newPaymentStatus === 'PAID' ? 'Dibayar' : update.newPaymentStatus}`;
     
     // Show success notification
     const notification = document.createElement('div');
@@ -289,15 +397,10 @@ export default function DashboardContent() {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-semibold text-lg text-neutral-900 dark:text-neutral-100">
-                      Pesanan #{String(order.id).padStart(8, '0')}
+                      Pesanan {formatOrderCode(order.id, order.createdAt)}
                     </h3>
-                    <p className="text-neutral-600 dark:text-neutral-400">
-                      {new Date(order.createdAt).toLocaleDateString('id-ID', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm">
+                      {formatDateTime(order.createdAt)}
                     </p>
                   </div>
                   <div className="text-right">
