@@ -215,17 +215,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
       // Redirect to payment
       if (data.paymentUrl) {
-        window.open(data.paymentUrl, '_blank');
-        
-        // Show success message with option to go to dashboard
-        const goToDashboard = confirm(
-          'Pesanan berhasil dibuat! Tab pembayaran telah dibuka.\n\n' +
-          'Klik OK untuk melihat pesanan di dashboard, atau Cancel untuk tetap di halaman ini.'
-        );
-        
-        if (goToDashboard) {
-          router.push('/user/dashboard');
-        }
+        // Redirect to payment page in the same tab
+        window.location.href = data.paymentUrl;
       } else {
         throw new Error('Payment URL tidak tersedia');
       }
