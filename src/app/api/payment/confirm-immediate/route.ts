@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { PaymentStatus } from '@prisma/client';
+import { OrderStatus, PaymentStatus } from '@prisma/client';
 
 // Helper function to format order code
 const formatOrderCode = (orderId: number, createdAt: Date) => {
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       prisma.order.update({
         where: { id: order.id },
         data: { 
-          status: 'DIBAYAR' as any // Type assertion for enum
+          status: 'DIBAYAR'
         }
       }),
       prisma.payment.update({

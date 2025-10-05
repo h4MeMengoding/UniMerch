@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Download, QrCode, Package, User, Calendar, ShoppingBag } from 'lucide-react';
+import { Download, QrCode, Package, ShoppingBag } from 'lucide-react';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import QRCode from 'qrcode';
@@ -163,7 +162,7 @@ export default function PaymentSuccessContent({ searchParams }: { searchParams: 
           toast.error('Terjadi kesalahan sistem. Silakan coba lagi nanti.');
         }
       }
-    } catch (error) {
+    } catch {
       // Don't log errors to browser console - keep UI clean
       toast.error('Terjadi kesalahan saat memuat data pesanan');
     } finally {
@@ -227,7 +226,7 @@ export default function PaymentSuccessContent({ searchParams }: { searchParams: 
         minute: '2-digit',
         timeZone: 'Asia/Jakarta'
       }) + ' WIB';
-    } catch (error) {
+    } catch {
       return 'Tanggal tidak valid';
     }
   };

@@ -103,11 +103,11 @@ export async function POST(request: NextRequest) {
     const xenditData = await xenditResponse.json();
     
     // Map Xendit status to our status
-    let newStatus = order.status;
+    let newStatus: string = order.status;
     let paymentStatus = order.payment.status;
     
     if (xenditData.status === 'PAID') {
-      newStatus = 'DIBAYAR' as any; // Type assertion to bypass enum issue
+      newStatus = 'DIBAYAR';
       paymentStatus = PaymentStatus.PAID;
     } else if (xenditData.status === 'EXPIRED') {
       paymentStatus = PaymentStatus.EXPIRED;
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
       await prisma.$transaction([
         prisma.order.update({
           where: { id: order.id },
-          data: { status: newStatus }
+          data: { status: newStatus as OrderStatus }
         }),
         prisma.payment.update({
           where: { id: order.payment.id },

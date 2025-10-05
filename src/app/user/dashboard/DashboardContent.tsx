@@ -69,42 +69,6 @@ export default function DashboardContent() {
     }
   };
 
-  // Format date helper function
-  const formatDate = (dateString: string) => {
-    try {
-      // Handle different date string formats
-      let date: Date;
-      
-      // If it's already a valid ISO string or standard format
-      if (dateString.includes('T') || dateString.includes('Z')) {
-        date = new Date(dateString);
-      } else {
-        // Try parsing as-is first
-        date = new Date(dateString);
-      }
-      
-      // Check if date is valid
-      if (isNaN(date.getTime())) {
-        console.warn('Invalid date string:', dateString);
-        return 'Tanggal tidak valid';
-      }
-      
-      // Format with Indonesian locale and Jakarta timezone
-      const options: Intl.DateTimeFormatOptions = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        timeZone: 'Asia/Jakarta'
-      };
-      
-      return date.toLocaleDateString('id-ID', options);
-    } catch (error) {
-      console.error('Error formatting date:', error, 'for dateString:', dateString);
-      return 'Tanggal tidak valid';
-    }
-  };
-
   // Format date with time helper function
   const formatDateTime = (dateString: string) => {
     try {
@@ -189,6 +153,16 @@ export default function DashboardContent() {
     }
   }, []);
 
+  const showStatusUpdateNotification = useCallback((update: PaymentUpdate) => {
+    // Find the order to get created date for proper code formatting
+    const order = orders.find(o => o.id === update.orderId);
+    const orderCode = order ? formatOrderCode(update.orderId, order.createdAt) : `#${String(update.orderId).padStart(8, '0')}`;
+    const message = `Pesanan ${orderCode} - Status pembayaran diperbarui: ${update.newPaymentStatus === 'PAID' ? 'Dibayar' : update.newPaymentStatus}`;
+    
+    // Show success notification using react-toastify
+    toast.success(message);
+  }, [orders]);
+
   const checkPaymentStatus = useCallback(async () => {
     try {
       const response = await fetch('/api/payment/check-status');
@@ -212,22 +186,12 @@ export default function DashboardContent() {
     } catch (error) {
       console.error('Error checking payment status:', error);
     }
-  }, [fetchOrders]);
-
-  const showStatusUpdateNotification = (update: PaymentUpdate) => {
-    // Find the order to get created date for proper code formatting
-    const order = orders.find(o => o.id === update.orderId);
-    const orderCode = order ? formatOrderCode(update.orderId, order.createdAt) : `#${String(update.orderId).padStart(8, '0')}`;
-    const message = `Pesanan ${orderCode} - Status pembayaran diperbarui: ${update.newPaymentStatus === 'PAID' ? 'Dibayar' : update.newPaymentStatus}`;
-    
-    // Show success notification using react-toastify
-    toast.success(message);
-  };
+  }, [fetchOrders, showStatusUpdateNotification]);
 
   // Initial load
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
   // Auto-refresh for pending payments - More aggressive polling
   useEffect(() => {

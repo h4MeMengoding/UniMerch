@@ -5,7 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import ConditionalFooter from "@/components/layout/ConditionalFooter";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
-import { ToastContainer } from 'react-toastify';
+import ThemeAwareToastContainer from "@/components/ui/ThemeAwareToastContainer";
 import 'react-toastify/dist/ReactToastify.css';
 
 const inter = Inter({
@@ -42,22 +42,7 @@ export default function RootLayout({
               </main>
               <ConditionalFooter />
             </div>
-            <ToastContainer 
-              position="bottom-right"
-              autoClose={6000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="auto"
-              style={{
-                bottom: '100px',
-                right: '20px',
-              }}
-            />
+            <ThemeAwareToastContainer />
           </AuthProvider>
         </ThemeProvider>
       </body>

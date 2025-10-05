@@ -29,14 +29,14 @@ const extractOrderIdFromCode = (orderCode: string): number | null => {
     
     return isNaN(orderId) ? null : orderId;
     
-  } catch (error) {
+  } catch {
     return null;
   }
 };
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { code: string } }
+  { params }: { params: Promise<{ code: string }> }
 ) {
   try {
     const { code } = await params;

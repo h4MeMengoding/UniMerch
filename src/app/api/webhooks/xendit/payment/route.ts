@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus, OrderStatus } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     console.log('Xendit webhook received:', webhookData);
 
     // Extract invoice ID and status from Xendit webhook
-    const { id: invoiceId, status, external_id } = webhookData;
+    const { id: invoiceId, status } = webhookData;
 
     if (!invoiceId || !status) {
       return NextResponse.json(
@@ -35,13 +35,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let newOrderStatus = payment.order.status;
+    let newOrderStatus: string = payment.order.status;
     let newPaymentStatus = payment.status;
 
     // Map Xendit status to our system
     switch (status) {
       case 'PAID':
-        newOrderStatus = 'DIBAYAR' as any;
+        newOrderStatus = 'DIBAYAR';
         newPaymentStatus = PaymentStatus.PAID;
         break;
       case 'EXPIRED':
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       await prisma.$transaction([
         prisma.order.update({
           where: { id: payment.order.id },
-          data: { status: newOrderStatus }
+          data: { status: newOrderStatus as OrderStatus }
         }),
         prisma.payment.update({
           where: { id: payment.id },

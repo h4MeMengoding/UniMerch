@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
 import { createInvoice } from '@/lib/xendit';
+import { OrderStatus } from '@prisma/client';
 
 interface JWTPayload {
   userId: number;
@@ -26,9 +27,9 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
 
     // Build where clause
-    const whereClause: any = {};
-    if (status) {
-      whereClause.status = status;
+    const whereClause: { status?: OrderStatus } = {};
+    if (status && Object.values(OrderStatus).includes(status as OrderStatus)) {
+      whereClause.status = status as OrderStatus;
     }
 
     // Get orders with filters
