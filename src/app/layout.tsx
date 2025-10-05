@@ -5,7 +5,8 @@ import Navbar from "@/components/layout/Navbar";
 import ConditionalFooter from "@/components/layout/ConditionalFooter";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
-import { Toaster } from 'react-hot-toast';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -41,11 +42,20 @@ export default function RootLayout({
               </main>
               <ConditionalFooter />
             </div>
-            <Toaster 
-              position="top-right"
-              reverseOrder={false}
-              toastOptions={{
-                duration: 6000,
+            <ToastContainer 
+              position="bottom-right"
+              autoClose={6000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="auto"
+              style={{
+                bottom: '100px',
+                right: '20px',
               }}
             />
           </AuthProvider>

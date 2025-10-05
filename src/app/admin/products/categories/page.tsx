@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tags, Plus, Edit, Trash2, X, Save } from 'lucide-react';
 import AdminLayout from '@/components/layout/AdminLayout';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 interface Category {
   id: number;

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Lock, Mail, Eye, EyeOff, User, Phone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 export default function Register() {
   const [formData, setFormData] = useState({

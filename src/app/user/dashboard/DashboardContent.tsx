@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Product } from '@/types/product';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { toast } from 'react-toastify';
 
 interface Order {
   id: number; // Changed from string to number to match database
@@ -219,24 +220,8 @@ export default function DashboardContent() {
     const orderCode = order ? formatOrderCode(update.orderId, order.createdAt) : `#${String(update.orderId).padStart(8, '0')}`;
     const message = `Pesanan ${orderCode} - Status pembayaran diperbarui: ${update.newPaymentStatus === 'PAID' ? 'Dibayar' : update.newPaymentStatus}`;
     
-    // Show success notification
-    const notification = document.createElement('div');
-    notification.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
-    notification.innerHTML = `
-      <div class="flex items-center">
-        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-        </svg>
-        ${message}
-      </div>
-    `;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.parentNode.removeChild(notification);
-      }
-    }, 5000);
+    // Show success notification using react-toastify
+    toast.success(message);
   };
 
   // Initial load
@@ -265,24 +250,8 @@ export default function DashboardContent() {
   useEffect(() => {
     const paymentParam = searchParams.get('payment');
     if (paymentParam === 'success') {
-      // Show success notification
-      const notification = document.createElement('div');
-      notification.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
-      notification.innerHTML = `
-        <div class="flex items-center">
-          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-          </svg>
-          Pembayaran berhasil! Status pesanan akan terupdate otomatis.
-        </div>
-      `;
-      document.body.appendChild(notification);
-      
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-      }, 5000);
+      // Show success notification using react-toastify
+      toast.success('Pembayaran berhasil! Status pesanan akan terupdate otomatis.');
     }
   }, [searchParams]);
 

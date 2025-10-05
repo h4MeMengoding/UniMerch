@@ -6,7 +6,7 @@ import { Lock, Mail, Eye, EyeOff, User, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/providers/AuthProvider';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 export default function Login() {
   const [formData, setFormData] = useState({
