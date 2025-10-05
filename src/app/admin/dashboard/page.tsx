@@ -6,13 +6,18 @@ import {
   ShoppingBag, 
   DollarSign, 
   Package,
-  TrendingUp,
   Eye,
   ArrowUpRight
 } from 'lucide-react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useRouter } from 'next/navigation';
+
+interface Order {
+  id: number;
+  status: string;
+  totalAmount: number;
+}
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function AdminDashboard() {
@@ -44,14 +49,14 @@ export default function AdminDashboard() {
     ]).then(([productsData, ordersData, usersData]) => {
       const orders = ordersData.orders || [];
       const totalRevenue = orders
-        .filter((order: any) => order.status !== 'BELUM_DIBAYAR')
-        .reduce((sum: number, order: any) => sum + order.totalAmount, 0);
+        .filter((order: Order) => order.status !== 'BELUM_DIBAYAR')
+        .reduce((sum: number, order: Order) => sum + order.totalAmount, 0);
       
-      const pendingOrders = orders.filter((order: any) => 
+      const pendingOrders = orders.filter((order: Order) => 
         order.status === 'DIBAYAR' || order.status === 'SIAP_DIAMBIL'
       ).length;
       
-      const completedOrders = orders.filter((order: any) => 
+      const completedOrders = orders.filter((order: Order) => 
         order.status === 'SUDAH_DIAMBIL' || order.status === 'SELESAI'
       ).length;
 

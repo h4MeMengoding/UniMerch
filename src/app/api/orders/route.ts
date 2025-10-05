@@ -9,6 +9,77 @@ interface JWTPayload {
   role: string;
 }
 
+// Helper function to format order code
+const formatOrderCode = (orderId: number, createdAt: Date) => {
+  const date = new Date(createdAt);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear()).slice(-2);
+  const id = String(orderId).padStart(5, '0');
+  return `#${day}${month}${year}${id}`;
+};
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const limit = searchParams.get('limit');
+
+    // Build where clause
+    const whereClause: any = {};
+    if (status) {
+      whereClause.status = status;
+    }
+
+    // Get orders with filters
+    const orders = await prisma.order.findMany({
+      where: whereClause,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        },
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                image: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: limit ? parseInt(limit) : undefined
+    });
+
+    // Add formatted orderCode to each order
+    const ordersWithCode = orders.map(order => ({
+      ...order,
+      orderCode: formatOrderCode(order.id, order.createdAt)
+    }));
+
+    return NextResponse.json({
+      success: true,
+      orders: ordersWithCode
+    });
+
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    return NextResponse.json(
+      { success: false, message: 'Terjadi kesalahan server' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const token = request.cookies.get('auth-token')?.value;

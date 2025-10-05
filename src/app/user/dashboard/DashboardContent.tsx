@@ -229,7 +229,7 @@ export default function DashboardContent() {
     fetchOrders();
   }, []);
 
-  // Auto-refresh for pending payments
+  // Auto-refresh for pending payments - More aggressive polling
   useEffect(() => {
     const hasPendingPayments = orders.some(order => 
       order.status === 'BELUM_DIBAYAR' || (order.payment && order.payment.status === 'PENDING')
@@ -238,7 +238,7 @@ export default function DashboardContent() {
     if (hasPendingPayments) {
       const interval = setInterval(() => {
         checkPaymentStatus(); // Check payment status and refresh if needed
-      }, 5000); // Check every 5 seconds
+      }, 2000); // Check every 2 seconds for faster updates
 
       return () => {
         clearInterval(interval);
@@ -246,14 +246,48 @@ export default function DashboardContent() {
     }
   }, [orders, checkPaymentStatus]);
 
-  // Payment success notification
+  // Real-time refresh when coming back from payment
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Page is visible again, refresh orders immediately
+        fetchOrders(false);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [fetchOrders]);
+
+  // Payment success notification with instant refresh
   useEffect(() => {
     const paymentParam = searchParams.get('payment');
     if (paymentParam === 'success') {
       // Show success notification using react-toastify
       toast.success('Pembayaran berhasil! Status pesanan akan terupdate otomatis.');
+      
+      // Immediately refresh orders data
+      fetchOrders(false);
+      
+      // Also check payment status to force update
+      setTimeout(() => {
+        checkPaymentStatus();
+      }, 1000);
+      
+      // Set up more frequent polling for next 30 seconds
+      const aggressiveInterval = setInterval(() => {
+        checkPaymentStatus();
+      }, 1000); // Every 1 second
+      
+      // Stop aggressive polling after 30 seconds
+      setTimeout(() => {
+        clearInterval(aggressiveInterval);
+      }, 30000);
     }
-  }, [searchParams]);
+  }, [searchParams, fetchOrders, checkPaymentStatus]);
 
   if (loading) {
     return (

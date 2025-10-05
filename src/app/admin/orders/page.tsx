@@ -6,13 +6,8 @@ import {
   ShoppingCart, 
   Eye, 
   Check, 
-  Clock, 
-  Package, 
   User,
-  Calendar,
-  DollarSign,
   Search,
-  Filter,
   X,
   ChevronDown
 } from 'lucide-react';
@@ -60,13 +55,31 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
+  const filterOrders = () => {
+    let filtered = orders;
+    
+    if (searchTerm) {
+      filtered = filtered.filter(order => 
+        order.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        `ORD-${order.id.toString().padStart(6, '0')}`.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(order => order.status === statusFilter);
+    }
+    
+    setFilteredOrders(filtered);
+  };
+
   useEffect(() => {
     fetchOrders();
   }, []);
 
   useEffect(() => {
     filterOrders();
-  }, [orders, searchTerm, statusFilter]);
+  }, [orders, searchTerm, statusFilter, filterOrders]);
 
   const fetchOrders = async () => {
     try {
@@ -77,32 +90,11 @@ export default function AdminOrders() {
       } else {
         toast.error('Gagal memuat pesanan');
       }
-    } catch (error) {
-      console.error('Error fetching orders:', error);
+    } catch {
       toast.error('Terjadi kesalahan saat memuat pesanan');
     } finally {
       setLoading(false);
     }
-  };
-
-  const filterOrders = () => {
-    let filtered = orders;
-
-    // Filter by status
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(order => order.status === statusFilter);
-    }
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(order => 
-        formatOrderCode(order.id, order.createdAt).toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.user.email.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    setFilteredOrders(filtered);
   };
 
   const formatOrderCode = (orderId: number, createdAt: string) => {
@@ -120,7 +112,7 @@ export default function AdminOrders() {
         : String(orderId).padStart(4, '0');
       
       return `#${year}${month}${day}${orderNum}`;
-    } catch (error) {
+    } catch {
       return `#${String(orderId).padStart(8, '0')}`;
     }
   };
@@ -141,7 +133,7 @@ export default function AdminOrders() {
         minute: '2-digit',
         timeZone: 'Asia/Jakarta'
       }) + ' WIB';
-    } catch (error) {
+    } catch {
       return 'Tanggal tidak valid';
     }
   };
@@ -200,8 +192,7 @@ export default function AdminOrders() {
         const data = await response.json();
         toast.error(data.message || 'Gagal memperbarui status pesanan');
       }
-    } catch (error) {
-      console.error('Error updating order status:', error);
+    } catch {
       toast.error('Terjadi kesalahan saat memperbarui status pesanan');
     } finally {
       setIsUpdating(false);

@@ -48,7 +48,6 @@ export default function AdminScanQR() {
   const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const scannerRef = useRef<any>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -124,14 +123,57 @@ export default function AdminScanQR() {
     }, 3000);
   };
 
-  const simulateQRDetection = () => {
-    // Simulate QR code detection
-    const mockQRData = {
-      orderId: 12345,
-      orderCode: '#25100512345'
-    };
-    
-    handleQRDetected(JSON.stringify(mockQRData));
+  const simulateQRDetection = async () => {
+    try {
+      // Try to fetch a valid paid order to simulate scanning
+      const response = await fetch('/api/orders?status=DIBAYAR&limit=1');
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.orders && data.orders.length > 0) {
+          const order = data.orders[0];
+          const mockQRData = {
+            orderId: order.id,
+            orderCode: order.orderCode,
+            userId: order.user.id,
+            items: order.items || [],
+            totalAmount: order.totalAmount,
+            timestamp: new Date().toISOString()
+          };
+          
+          handleQRDetected(JSON.stringify(mockQRData));
+          return;
+        }
+      }
+      
+      // Fallback: create mock data for testing if no paid orders exist
+      const mockQRData = {
+        orderId: 1,
+        orderCode: '#05102500001',
+        userId: 1,
+        items: [],
+        totalAmount: 150000,
+        timestamp: new Date().toISOString()
+      };
+      
+      handleQRDetected(JSON.stringify(mockQRData));
+      
+    } catch (error) {
+      console.error('Error simulating QR detection:', error);
+      
+      // Final fallback: use simple mock data
+      const mockQRData = {
+        orderId: 1,
+        orderCode: '#05102500001',
+        userId: 1,
+        items: [],
+        totalAmount: 150000,
+        timestamp: new Date().toISOString()
+      };
+      
+      handleQRDetected(JSON.stringify(mockQRData));
+    }
   };
 
   const handleQRDetected = async (qrData: string) => {
@@ -141,15 +183,35 @@ export default function AdminScanQR() {
       // Parse QR code data
       const qrInfo = JSON.parse(qrData);
       
-      // Fetch order details
-      const response = await fetch(`/api/admin/orders/${qrInfo.orderId}`);
+      // Validate required fields in QR data
+      if (!qrInfo.orderId) {
+        setError('QR Code tidak valid: orderId tidak ditemukan');
+        return;
+      }
+      
+      // Fetch order details using order ID
+      const response = await fetch(`/api/orders/${qrInfo.orderId}`);
       if (response.ok) {
         const orderData = await response.json();
-        setScanResult(orderData.order);
+        
+        // Check if order is paid
+        if (orderData.order.status !== 'DIBAYAR') {
+          setError('Pesanan belum dibayar atau sudah selesai');
+          return;
+        }
+        
+        // Add orderCode to the order data
+        const orderWithCode = {
+          ...orderData.order,
+          orderCode: qrInfo.orderCode || `#${orderData.order.id.toString().padStart(5, '0')}`
+        };
+        
+        setScanResult(orderWithCode);
         stopCamera();
         toast.success('QR Code berhasil dipindai!');
       } else {
-        setError('Pesanan tidak ditemukan atau tidak valid');
+        const errorData = await response.json();
+        setError(errorData.message || 'Pesanan tidak ditemukan atau tidak valid');
       }
     } catch (err) {
       console.error('Error processing QR code:', err);
@@ -165,12 +227,12 @@ export default function AdminScanQR() {
     try {
       setIsProcessing(true);
       
-      const response = await fetch(`/api/admin/orders/${scanResult.orderId}`, {
-        method: 'PUT',
+      const response = await fetch('/api/admin/orders/complete', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: 'SELESAI' }),
+        body: JSON.stringify({ orderId: scanResult.orderId }),
       });
 
       if (response.ok) {
@@ -182,8 +244,7 @@ export default function AdminScanQR() {
         const data = await response.json();
         toast.error(data.message || 'Gagal menyelesaikan pesanan');
       }
-    } catch (error) {
-      console.error('Error completing order:', error);
+    } catch {
       toast.error('Terjadi kesalahan saat menyelesaikan pesanan');
     } finally {
       setIsProcessing(false);
@@ -210,7 +271,7 @@ export default function AdminScanQR() {
         minute: '2-digit',
         timeZone: 'Asia/Jakarta'
       }) + ' WIB';
-    } catch (error) {
+    } catch {
       return 'Tanggal tidak valid';
     }
   };
@@ -349,7 +410,7 @@ export default function AdminScanQR() {
               <div className="text-sm text-neutral-600 dark:text-neutral-400 space-y-1">
                 <p><strong>Cara menggunakan:</strong></p>
                 <ol className="list-decimal list-inside space-y-1 ml-2">
-                  <li>Klik "Mulai Scan" untuk mengaktifkan kamera</li>
+                  <li>Klik &quot;Mulai Scan&quot; untuk mengaktifkan kamera</li>
                   <li>Arahkan kamera ke QR code pesanan</li>
                   <li>Tunggu hingga QR code terdeteksi</li>
                   <li>Konfirmasi penyelesaian pesanan</li>
