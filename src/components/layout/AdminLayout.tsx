@@ -12,7 +12,8 @@ import {
   ChevronDown,
   Tags,
   ShoppingCart,
-  ClipboardList
+  ClipboardList,
+  QrCode
 } from 'lucide-react';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
@@ -200,7 +201,31 @@ export default function AdminLayout({ children, currentPage = 'dashboard' }: Adm
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-3 border-t border-neutral-200 dark:border-dark-700">
+        <div className="p-3 border-t border-neutral-200 dark:border-dark-700 space-y-1">
+          {/* Scan QR Code Button */}
+          <button
+            onClick={() => handleMenuClick('/admin/scan-qr')}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors relative ${
+              currentPage === 'scan-qr'
+                ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
+                : 'text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20'
+            }`}
+            title={sidebarCollapsed ? 'Scan QR Code' : ''}
+          >
+            {currentPage === 'scan-qr' && (
+              <motion.div
+                className="absolute left-0 top-1 bottom-1 w-1 bg-primary-600 rounded-r-full"
+                layoutId="sidebar-indicator"
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              />
+            )}
+            <QrCode className={`w-5 h-5 ${sidebarCollapsed ? 'mx-auto' : 'mr-3'} ${
+              currentPage === 'scan-qr' ? 'text-primary-600' : ''
+            }`} />
+            {!sidebarCollapsed && <span>Scan QR Code</span>}
+          </button>
+          
+          {/* Logout Button */}
           <button
             onClick={handleLogout}
             className="w-full flex items-center px-3 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
@@ -323,7 +348,29 @@ export default function AdminLayout({ children, currentPage = 'dashboard' }: Adm
                 ))}
               </nav>
 
-              <div className="p-3 border-t border-neutral-200 dark:border-dark-700">
+              <div className="p-3 border-t border-neutral-200 dark:border-dark-700 space-y-1">
+                {/* Scan QR Code Button */}
+                <button
+                  onClick={() => {
+                    handleMenuClick('/admin/scan-qr');
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors relative ${
+                    currentPage === 'scan-qr'
+                      ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
+                      : 'text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20'
+                  }`}
+                >
+                  {currentPage === 'scan-qr' && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-600 rounded-r-full"></div>
+                  )}
+                  <QrCode className={`w-5 h-5 mr-3 ${
+                    currentPage === 'scan-qr' ? 'text-primary-600' : ''
+                  }`} />
+                  <span>Scan QR Code</span>
+                </button>
+
+                {/* Logout Button */}
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center px-3 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
