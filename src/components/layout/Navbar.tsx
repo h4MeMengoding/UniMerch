@@ -6,7 +6,6 @@ import { Menu, X, Search, ShoppingCart, User, Heart, Sun, Moon, ChevronDown, Log
 import { useTheme } from '@/providers/ThemeProvider';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
-import { ThemeTooltip } from '@/components/ui/ThemeTooltip';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -135,14 +134,6 @@ export default function Navbar() {
               >
                 {theme === 'light' ? <Moon className="w-5 h-5 text-neutral-700" /> : <Sun className="w-5 h-5 text-neutral-300" />}
               </motion.button>
-
-              {/* Theme Tooltip - Desktop Only */}
-              <div className="hidden md:block">
-                <ThemeTooltip 
-                  isVisible={showThemeTooltip}
-                  onClose={() => setShowThemeTooltip(false)}
-                />
-              </div>
             </div>
 
             {/* Wishlist */}
