@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import ConditionalFooter from "@/components/layout/ConditionalFooter";
@@ -8,9 +8,10 @@ import { AuthProvider } from "@/providers/AuthProvider";
 import ThemeAwareToastContainer from "@/components/ui/ThemeAwareToastContainer";
 import 'react-toastify/dist/ReactToastify.css';
 
-const inter = Inter({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-plus-jakarta-sans",
+  weight: ["200", "300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -32,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className="scroll-smooth">
-      <body className={`${inter.variable} font-sans antialiased bg-white dark:bg-dark-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300`}>
+      <body className={`${plusJakartaSans.className} antialiased bg-white dark:bg-dark-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300`}>
         <ThemeProvider>
           <AuthProvider>
             <div className="flex flex-col min-h-screen">
