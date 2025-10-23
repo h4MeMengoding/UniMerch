@@ -84,12 +84,23 @@ export default function Navbar() {
           <div className="flex-shrink-0">
             <motion.a
               href="/"
-              className="text-2xl font-bold text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              className="block hover:opacity-80 transition-opacity"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               aria-label="UniMerch - Beranda"
             >
-              UniMerch
+              {/* Light mode logo */}
+              <img
+                src="/header-brand.svg"
+                alt="UniMerch"
+                className="h-10 sm:h-12 lg:h-14 w-auto dark:hidden"
+              />
+              {/* Dark mode logo */}
+              <img
+                src="/header-brand-dark.svg"
+                alt="UniMerch"
+                className="h-10 sm:h-12 lg:h-14 w-auto hidden dark:block"
+              />
             </motion.a>
           </div>
 
