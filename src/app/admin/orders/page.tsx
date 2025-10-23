@@ -79,15 +79,6 @@ export default function AdminOrders() {
     setFilteredOrders(filtered);
   }, [orders, searchTerm, statusFilter]);
 
-  // Show loading while checking authentication
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
   useEffect(() => {
     // Only fetch orders if user is authenticated as admin
     if (user?.role === 'ADMIN') {
@@ -244,6 +235,15 @@ export default function AdminOrders() {
     const nextStatus = getNextStatus(currentStatus);
     return nextStatus ? getStatusText(nextStatus) : null;
   };
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   if (loading) {
     return (

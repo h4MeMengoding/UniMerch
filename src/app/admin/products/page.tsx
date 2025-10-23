@@ -96,15 +96,6 @@ export default function AdminProducts() {
   });
   const router = useRouter();
 
-  // Show loading while checking authentication
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
   useEffect(() => {
     // Only proceed if user is authenticated as admin
     if (user?.role === 'ADMIN') {
@@ -420,17 +411,30 @@ export default function AdminProducts() {
   };
 
   const handleDeleteProduct = async (id: number) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus produk ini?')) return;
+    if (!confirm('Apakah Anda yakin ingin menghapus produk ini?\n\nProduk yang sudah dibeli akan tetap ada di riwayat pembeli, tetapi pesanan yang belum dibayar tidak dapat diselesaikan.')) return;
 
     try {
       const response = await fetch(`/api/admin/products/${id}`, {
         method: 'DELETE',
       });
 
+      const data = await response.json();
+
       if (response.ok) {
+        let message = data.message || 'Produk berhasil dihapus';
+        
+        if (data.affectedOrders > 0) {
+          message += `\n\nℹ️ Informasi:`;
+          message += `\n• ${data.affectedOrders} pesanan menggunakan produk ini`;
+          if (data.unpaidOrders > 0) {
+            message += `\n• ${data.unpaidOrders} pesanan belum dibayar akan diblokir`;
+          }
+        }
+        
+        alert(message);
         fetchProducts(); // Refresh the list
       } else {
-        alert('Gagal menghapus produk');
+        alert(data.message || 'Gagal menghapus produk');
       }
     } catch (error) {
       console.error('Error deleting product:', error);
@@ -475,6 +479,15 @@ export default function AdminProducts() {
       alert('Terjadi kesalahan saat menyimpan produk');
     }
   };
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -581,7 +594,7 @@ export default function AdminProducts() {
                             <p className="text-sm font-medium text-neutral-900 dark:text-white">
                               {product.name}
                             </p>
-                            <p className="text-xs text-neutral-500 dark:text-neutral-500 line-clamp-1">
+                            <p className="text-xs text-neutral-500 dark:text-neutral-500 line-clamp-2 whitespace-pre-line">
                               {product.description}
                             </p>
                           </div>
@@ -612,7 +625,7 @@ export default function AdminProducts() {
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {product.stock} unit
+                          {product.stock} pcs
                         </span>
                       </td>
                       <td className="py-4 px-6">

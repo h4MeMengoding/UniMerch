@@ -177,7 +177,7 @@ export default function PaymentSuccessContent({ searchParams }: { searchParams: 
         orderCode: order.orderCode,
         userId: order.user.id, // Use order.user.id from the API response
         items: order.items.map(item => ({
-          productName: item.product.name,
+          productName: item.product?.name || 'Produk dihapus',
           quantity: item.quantity,
           price: item.price
         })),
@@ -389,8 +389,8 @@ export default function PaymentSuccessContent({ searchParams }: { searchParams: 
                         >
                           <div className="relative flex-shrink-0">
                             <img
-                              src={item.product.image || '/api/placeholder/60/60'}
-                              alt={item.product.name}
+                              src={item.product?.image || '/api/placeholder/60/60'}
+                              alt={item.product?.name || 'Produk dihapus'}
                               className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg sm:rounded-xl border-2 border-white dark:border-dark-600 shadow-lg"
                             />
                             <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-primary-500 text-white text-xs font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-lg">
@@ -399,7 +399,7 @@ export default function PaymentSuccessContent({ searchParams }: { searchParams: 
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base lg:text-lg line-clamp-2">
-                              {item.product.name}
+                              {item.product?.name || 'Produk dihapus'}
                             </h4>
                             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
                               {item.quantity} × Rp {item.price.toLocaleString('id-ID')}

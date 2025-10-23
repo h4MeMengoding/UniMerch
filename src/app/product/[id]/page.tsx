@@ -581,9 +581,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-4"
                   >
-                    <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed">
+                    <div className="text-neutral-600 dark:text-neutral-300 leading-relaxed whitespace-pre-line">
                       {product.description || 'Produk berkualitas tinggi dengan standar terbaik. Cocok untuk berbagai kebutuhan dan aktivitas sehari-hari.'}
-                    </p>
+                    </div>
                     
                     <div>
                       <h4 className="font-semibold text-neutral-900 dark:text-white mb-2">Fitur Utama:</h4>

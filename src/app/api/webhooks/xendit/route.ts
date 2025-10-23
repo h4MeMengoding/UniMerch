@@ -44,14 +44,17 @@ export async function POST(request: NextRequest) {
         });
         
         for (const item of orderItems) {
-          await prisma.product.update({
-            where: { id: item.productId },
-            data: {
-              stock: {
-                increment: item.quantity,
+          // Skip if product was deleted
+          if (item.productId) {
+            await prisma.product.update({
+              where: { id: item.productId },
+              data: {
+                stock: {
+                  increment: item.quantity,
+                },
               },
-            },
-          });
+            });
+          }
         }
         break;
       case 'FAILED':

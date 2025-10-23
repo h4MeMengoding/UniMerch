@@ -143,7 +143,7 @@ export async function POST(
         createdAt: updatedOrder.createdAt,
         items: updatedOrder.items.map(item => ({
           id: item.id,
-          productName: item.product.name,
+          productName: item.product?.name || 'Produk dihapus',
           variantName: item.variantOptions.length > 0 
             ? item.variantOptions.map(opt => opt.name).join(', ')
             : null,

@@ -120,15 +120,73 @@ export async function DELETE(
     const { id } = await params;
     const productId = parseInt(id);
 
+    // Check if product exists
+    const product = await prisma.product.findUnique({
+      where: { id: productId }
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { message: 'Produk tidak ditemukan' },
+        { status: 404 }
+      );
+    }
+
+    // Check for unpaid orders that contain this product
+    const unpaidOrdersCount = await prisma.orderItem.count({
+      where: {
+        productId: productId,
+        order: {
+          status: 'BELUM_DIBAYAR'
+        }
+      }
+    });
+
+    // Get total usage for informational purposes
+    const totalOrderItemsCount = await prisma.orderItem.count({
+      where: { productId: productId }
+    });
+
+    // Delete related variant options and variants first
+    await prisma.variantOption.deleteMany({
+      where: {
+        variant: {
+          productId: productId
+        }
+      }
+    });
+
+    await prisma.productVariant.deleteMany({
+      where: { productId: productId }
+    });
+
+    // Delete the product (order items will remain but with null productId reference)
     await prisma.product.delete({
       where: { id: productId }
     });
 
-    return NextResponse.json({ message: 'Product deleted successfully' });
+    let message = 'Produk berhasil dihapus';
+    
+    if (totalOrderItemsCount > 0) {
+      message += `. Produk ini sebelumnya digunakan dalam ${totalOrderItemsCount} pesanan`;
+      
+      if (unpaidOrdersCount > 0) {
+        message += `, termasuk ${unpaidOrdersCount} pesanan yang belum dibayar (pembayaran akan diblokir)`;
+      }
+    }
+
+    return NextResponse.json({ 
+      message: message,
+      deleted: true,
+      affectedOrders: totalOrderItemsCount,
+      unpaidOrders: unpaidOrdersCount
+    });
+    
   } catch (error) {
     console.error('Error deleting product:', error);
+    
     return NextResponse.json(
-      { message: 'Error deleting product' },
+      { message: 'Terjadi kesalahan saat menghapus produk' },
       { status: 500 }
     );
   }

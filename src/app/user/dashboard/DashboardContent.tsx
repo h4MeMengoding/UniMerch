@@ -406,13 +406,13 @@ export default function DashboardContent() {
                   {order.items.map((item: OrderItem) => (
                     <div key={item.id} className="flex items-center gap-3 sm:gap-4 p-2 sm:p-3 bg-neutral-50 dark:bg-dark-800 rounded-lg">
                       <img
-                        src={item.product.image || '/api/placeholder/80/80'}
-                        alt={item.product.name}
+                        src={item.product?.image || '/api/placeholder/80/80'}
+                        alt={item.product?.name || 'Produk dihapus'}
                         className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg flex-shrink-0"
                       />
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm sm:text-base text-neutral-900 dark:text-neutral-100 truncate">
-                          {item.product.name}
+                          {item.product?.name || 'Produk dihapus'}
                         </h4>
                         <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
                           {item.quantity} × Rp {item.price.toLocaleString('id-ID')}
