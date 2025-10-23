@@ -8,8 +8,8 @@ export default function ThemeAwareToastContainer() {
 
   return (
     <ToastContainer 
-      position="bottom-right"
-      autoClose={5000}
+      position="top-right"
+      autoClose={4000}
       hideProgressBar={false}
       newestOnTop={true}
       closeOnClick
@@ -19,8 +19,9 @@ export default function ThemeAwareToastContainer() {
       pauseOnHover
       theme={theme === 'dark' ? 'dark' : 'light'}
       className="custom-toast-container"
+      limit={3}
       style={{
-        bottom: '20px',
+        top: '80px',
         right: '20px',
         zIndex: 9999,
       }}

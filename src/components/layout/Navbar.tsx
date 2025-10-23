@@ -79,7 +79,7 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-dark-900/95 backdrop-blur-sm border-b border-neutral-200 dark:border-dark-700 transition-colors duration-300">
       <nav className="container mx-auto px-4 lg:px-6" aria-label="Navigasi utama">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
             <motion.a

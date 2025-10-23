@@ -41,10 +41,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if order is paid
-    if (order.status !== 'DIBAYAR') {
+    // Check if order can be completed
+    if (order.status === 'BELUM_DIBAYAR') {
       return NextResponse.json(
         { success: false, message: 'Pesanan belum dibayar' }, 
+        { status: 400 }
+      );
+    }
+
+    if (order.status === 'SUDAH_DIAMBIL' || order.status === 'SELESAI') {
+      return NextResponse.json(
+        { success: false, message: 'Pesanan sudah selesai' }, 
+        { status: 400 }
+      );
+    }
+
+    if (order.status !== 'DIBAYAR' && order.status !== 'SIAP_DIAMBIL') {
+      return NextResponse.json(
+        { success: false, message: `Status pesanan tidak valid: ${order.status}` }, 
         { status: 400 }
       );
     }

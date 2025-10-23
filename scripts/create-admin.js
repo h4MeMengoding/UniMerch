@@ -12,9 +12,9 @@ async function createUsers() {
     // Create admin user
     const admin = await prisma.user.create({
       data: {
-        email: 'admin@demo.com',
+        email: 'pkkmb@unimerch.id',
         password: adminPassword,
-        name: 'Demo Admin',
+        name: 'PKKMB UNNES',
         role: 'ADMIN'
       }
     });
@@ -22,9 +22,9 @@ async function createUsers() {
     // Create regular user
     const user = await prisma.user.create({
       data: {
-        email: 'user@demo.com',
+        email: 'user@unimerch.id',
         password: userPassword,
-        name: 'Demo User',
+        name: 'REGULER USER',
         role: 'USER'
       }
     });

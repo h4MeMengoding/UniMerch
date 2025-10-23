@@ -4,8 +4,8 @@ export default async function PaymentFailedPage({ searchParams }: { searchParams
   const resolvedSearchParams = await searchParams;
   
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-dark-950">
-      <div className="bg-red-100 dark:bg-red-900/30 p-8 rounded-xl shadow-lg text-center">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-8 flex flex-col items-center justify-center bg-white dark:bg-dark-950 px-4">
+      <div className="bg-red-100 dark:bg-red-900/30 p-8 rounded-xl shadow-lg text-center max-w-md w-full">
         <h1 className="text-3xl font-bold text-red-700 dark:text-red-400 mb-4">Pembayaran Gagal</h1>
         <p className="text-lg text-neutral-700 dark:text-neutral-300 mb-4">
           Mohon maaf, pembayaran Anda gagal diproses.

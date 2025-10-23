@@ -187,17 +187,18 @@ html {
 /* Mobile toast adjustments */
 @media (max-width: 640px) {
   .Toastify__toast-container {
-    bottom: 80px !important;
-    right: 16px !important;
-    left: 16px !important;
+    top: 84px !important;
+    right: 12px !important;
+    left: 12px !important;
     width: auto !important;
   }
   
   .Toastify__toast {
     margin-bottom: 8px;
-    font-size: 13px;
+    font-size: 14px;
     min-height: 56px;
     padding: 12px;
+    border-radius: 8px;
   }
 }
 
@@ -217,6 +218,15 @@ html {
     min-width: 44px;
   }
   
+  /* Better mobile input fields */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"] {
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-height: 44px;
+  }
+  
   /* Better mobile grid spacing */
   .mobile-product-grid {
     gap: 1rem;
@@ -226,6 +236,12 @@ html {
   .mobile-text-optimize {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Mobile form improvements */
+  .mobile-form-container {
+    padding: 1rem;
+    margin-top: 1rem;
   }
   
   /* Mobile toast adjustments */
@@ -238,5 +254,16 @@ html {
   
   .Toastify__toast-container {
     padding: 12px;
+  }
+  
+  /* Fix viewport on mobile devices */
+  html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+  
+  /* Prevent horizontal scrolling on mobile */
+  body {
+    overflow-x: hidden;
   }
 }

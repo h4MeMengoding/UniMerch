@@ -41,7 +41,7 @@ export default function DashboardContent() {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
-  // Format order code helper function
+  // Format order code helper function - CONSISTENT with API format
   const formatOrderCode = (orderId: number, createdAt: string) => {
     try {
       const date = new Date(createdAt);
@@ -52,17 +52,13 @@ export default function DashboardContent() {
         return `#${String(orderId).padStart(8, '0')}`; // Fallback to old format
       }
       
-      // Get date components in UTC to avoid timezone issues
-      const year = String(date.getUTCFullYear()).slice(-2); // Last 2 digits of year
-      const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Month with leading zero
-      const day = String(date.getUTCDate()).padStart(2, '0'); // Day with leading zero
+      // Use SAME format as API: DD-MM-YY-NNNNN (Day-Month-Year-OrderID)
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = String(date.getFullYear()).slice(-2);
+      const id = String(orderId).padStart(5, '0');
       
-      // Handle order ID overflow (max 4 digits = 9999)
-      const orderNum = orderId > 9999 
-        ? String(orderId % 10000).padStart(4, '0') // Take last 4 digits if overflow
-        : String(orderId).padStart(4, '0'); // Normal padding
-      
-      return `#${year}${month}${day}${orderNum}`;
+      return `#${day}${month}${year}${id}`;
     } catch (error) {
       console.error('Error formatting order code:', error);
       return `#${String(orderId).padStart(8, '0')}`; // Fallback to old format
@@ -230,8 +226,6 @@ export default function DashboardContent() {
   useEffect(() => {
     const paymentParam = searchParams.get('payment');
     if (paymentParam === 'success') {
-      // Show success notification using react-toastify
-      toast.success('Pembayaran berhasil! Status pesanan akan terupdate otomatis.');
       
       // Immediately refresh orders data
       fetchOrders(false);
@@ -239,12 +233,12 @@ export default function DashboardContent() {
       // Also check payment status to force update
       setTimeout(() => {
         checkPaymentStatus();
-      }, 1000);
+      }, 10000);
       
       // Set up more frequent polling for next 30 seconds
       const aggressiveInterval = setInterval(() => {
         checkPaymentStatus();
-      }, 1000); // Every 1 second
+      }, 10000); // Every 1 second
       
       // Stop aggressive polling after 30 seconds
       setTimeout(() => {

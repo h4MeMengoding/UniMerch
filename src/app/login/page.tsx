@@ -40,18 +40,25 @@ export default function Login() {
         // Use AuthContext to handle login
         login(data.user);
         
-        // Show success message with react-hot-toast
-        toast.success(`Halo ${data.user.name}👋`);
+        // Show success message with react-toastify
+        toast.dismiss(); // Clear any existing toasts
+        toast.success(`Halo ${data.user.name}👋`, {
+          toastId: 'login-success'
+        });
         
         // Redirect based on role
         router.push(data.redirectUrl);
       } else {
         setError(data.message || 'Login failed');
-        toast.error(`Login gagal: ${data.message || 'Email atau password salah'}`);
+        toast.error(`Login gagal: ${data.message || 'Email atau password salah'}`, {
+          toastId: 'login-error'
+        });
       }
     } catch (error) {
       setError('Something went wrong. Please try again.');
-      toast.error('Terjadi kesalahan. Silakan coba lagi dalam beberapa saat');
+      toast.error('Terjadi kesalahan. Silakan coba lagi dalam beberapa saat', {
+        toastId: 'login-network-error'
+      });
       console.error('Login error:', error);
     } finally {
       setIsLoading(false);
@@ -65,16 +72,39 @@ export default function Login() {
     }));
   };
 
+  // Auto-fill functions for demo accounts
+  const fillAdminCredentials = () => {
+    setFormData({
+      email: 'pkkmb@unimerch.id',
+      password: 'admin123'
+    });
+    toast.dismiss(); // Clear any existing toasts
+    toast.success('✅ Kredensial Admin berhasil diisi! Klik "Sign In" untuk masuk.', {
+      toastId: 'admin-fill'
+    });
+  };
+
+  const fillUserCredentials = () => {
+    setFormData({
+      email: 'user@unimerch.id',
+      password: 'user123'
+    });
+    toast.dismiss(); // Clear any existing toasts
+    toast.success('✅ Kredensial User berhasil diisi! Klik "Sign In" untuk masuk.', {
+      toastId: 'user-fill'
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-dark-950 dark:to-dark-900 flex items-center justify-center p-4">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-8 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-dark-950 dark:to-dark-900 flex items-start justify-center p-4 sm:p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md sm:max-w-lg my-4 sm:my-8"
       >
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -83,7 +113,7 @@ export default function Login() {
           >
             <Lock className="w-8 h-8 text-white" />
           </motion.div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-white mb-2">
             Welcome Back
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400">
@@ -96,9 +126,9 @@ export default function Login() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="bg-white dark:bg-dark-800 rounded-lg shadow-lg p-6"
+          className="bg-white dark:bg-dark-800 rounded-lg shadow-lg p-6 sm:p-8"
         >
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
@@ -113,7 +143,7 @@ export default function Login() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-neutral-300 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-700 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400"
+                  className="w-full pl-10 pr-4 py-3 sm:py-4 border border-neutral-300 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-700 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 text-base"
                   placeholder="Enter your email"
                 />
               </div>
@@ -133,7 +163,7 @@ export default function Login() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-neutral-300 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-700 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400"
+                  className="w-full pl-10 pr-12 py-3 sm:py-4 border border-neutral-300 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-700 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 text-base"
                   placeholder="Enter your password"
                 />
                 <button
@@ -161,7 +191,7 @@ export default function Login() {
             <motion.button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white font-medium py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed"
+              className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white font-medium py-3 sm:py-4 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed min-h-[44px] text-base"
               whileHover={{ scale: isLoading ? 1 : 1.02 }}
               whileTap={{ scale: isLoading ? 1 : 0.98 }}
             >
@@ -198,9 +228,20 @@ export default function Login() {
           >
             {/* Admin Credentials */}
             <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-              <div className="flex items-center mb-2">
-                <Shield className="w-4 h-4 text-red-600 dark:text-red-400 mr-2" />
-                <p className="text-sm font-medium text-red-700 dark:text-red-300">Admin Account</p>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center">
+                  <Shield className="w-4 h-4 text-red-600 dark:text-red-400 mr-2" />
+                  <p className="text-sm font-medium text-red-700 dark:text-red-300">Admin Account</p>
+                </div>
+                <motion.button
+                  onClick={fillAdminCredentials}
+                  className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-md transition-colors duration-200 min-h-[32px] shadow-sm hover:shadow-md"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="button"
+                >
+                  Gunakan
+                </motion.button>
               </div>
               <p className="text-xs text-red-600 dark:text-red-400">
                 Email: pkkmb@unimerch.id<br />
@@ -210,12 +251,23 @@ export default function Login() {
 
             {/* User Credentials */}
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <div className="flex items-center mb-2">
-                <User className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
-                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">User Account</p>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center">
+                  <User className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
+                  <p className="text-sm font-medium text-blue-700 dark:text-blue-300">User Account</p>
+                </div>
+                <motion.button
+                  onClick={fillUserCredentials}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors duration-200 min-h-[32px] shadow-sm hover:shadow-md"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="button"
+                >
+                  Gunakan
+                </motion.button>
               </div>
               <p className="text-xs text-blue-600 dark:text-blue-400">
-                Email: user@demo.com<br />
+                Email: user@unimerch.id<br />
                 Password: user123
               </p>
             </div>
