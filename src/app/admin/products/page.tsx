@@ -15,6 +15,7 @@ import {
   GripVertical
 } from 'lucide-react';
 import AdminLayout from '@/components/layout/AdminLayout';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import Image from 'next/image';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
@@ -67,6 +68,11 @@ interface ProductVariant {
 }
 
 export default function AdminProducts() {
+  const { user, isLoading: authLoading } = useAuthGuard({
+    requireAuth: true,
+    requireRole: 'ADMIN'
+  });
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [variantTypes, setVariantTypes] = useState<VariantType[]>([]);
@@ -90,30 +96,23 @@ export default function AdminProducts() {
   });
   const router = useRouter();
 
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
   useEffect(() => {
-    // Check if admin is logged in
-    const token = localStorage.getItem('userToken');
-    const user = localStorage.getItem('userData');
-    
-    if (!token || !user) {
-      router.push('/login');
-      return;
+    // Only proceed if user is authenticated as admin
+    if (user?.role === 'ADMIN') {
+      fetchProducts();
+      fetchCategories();
+      fetchVariantTypes();
     }
-
-    const parsedUser = JSON.parse(user);
-    if (parsedUser.role !== 'ADMIN') {
-      router.push('/login');
-      return;
-    }
-
-    fetchProducts();
-
-    // Fetch categories for dropdown
-    fetchCategories();
-    
-    // Fetch variant types for dropdown
-    fetchVariantTypes();
-  }, [router]);
+  }, [user]);
 
   const fetchVariantTypes = async () => {
     try {

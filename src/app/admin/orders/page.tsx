@@ -12,6 +12,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import AdminLayout from '@/components/layout/AdminLayout';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
@@ -46,6 +47,11 @@ interface OrderItem {
 }
 
 export default function AdminOrders() {
+  const { user, isLoading: authLoading } = useAuthGuard({
+    requireAuth: true,
+    requireRole: 'ADMIN'
+  });
+  
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,9 +79,21 @@ export default function AdminOrders() {
     setFilteredOrders(filtered);
   }, [orders, searchTerm, statusFilter]);
 
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    // Only fetch orders if user is authenticated as admin
+    if (user?.role === 'ADMIN') {
+      fetchOrders();
+    }
+  }, [user]);
 
   useEffect(() => {
     filterOrders();
@@ -337,14 +355,14 @@ export default function AdminOrders() {
                             {/* Show first product thumbnail */}
                             <div className="flex-shrink-0">
                               <img
-                                src={order.items[0]?.product.image || '/api/placeholder/40/40'}
-                                alt={order.items[0]?.product.name}
+                                src={order.items[0]?.product?.image || '/api/placeholder/40/40'}
+                                alt={order.items[0]?.product?.name || 'Product'}
                                 className="w-10 h-10 object-cover rounded-lg"
                               />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="font-medium text-gray-900 dark:text-white truncate">
-                                {order.items[0]?.product.name}
+                                {order.items[0]?.product?.name || 'Produk tidak ditemukan'}
                               </div>
                               {order.items.length > 1 && (
                                 <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -416,13 +434,13 @@ export default function AdminOrders() {
                     {/* Product Info */}
                     <div className="flex items-center space-x-3">
                       <img
-                        src={order.items[0]?.product.image || '/api/placeholder/50/50'}
-                        alt={order.items[0]?.product.name}
+                        src={order.items[0]?.product?.image || '/api/placeholder/50/50'}
+                        alt={order.items[0]?.product?.name || 'Product'}
                         className="w-12 h-12 object-cover rounded-lg"
                       />
                       <div className="flex-1">
                         <div className="font-medium text-gray-900 dark:text-white">
-                          {order.items[0]?.product.name}
+                          {order.items[0]?.product?.name || 'Produk tidak ditemukan'}
                         </div>
                         {order.items.length > 1 && (
                           <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -531,13 +549,13 @@ export default function AdminOrders() {
                       {selectedOrder.items.map((item) => (
                         <div key={item.id} className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                           <img
-                            src={item.product.image || '/api/placeholder/60/60'}
-                            alt={item.product.name}
+                            src={item.product?.image || '/api/placeholder/60/60'}
+                            alt={item.product?.name || 'Product'}
                             className="w-12 h-12 object-cover rounded-lg"
                           />
                           <div className="flex-1">
                             <h4 className="font-medium text-gray-900 dark:text-white">
-                              {item.product.name}
+                              {item.product?.name || 'Produk tidak ditemukan'}
                             </h4>
                             <p className="text-gray-600 dark:text-gray-400">
                               {item.quantity} × Rp {item.price.toLocaleString('id-ID')}
