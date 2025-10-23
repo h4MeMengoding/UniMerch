@@ -289,18 +289,127 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
-            {/* Mobile Cart */}
-            <motion.button
-              className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors relative"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              aria-label="Keranjang belanja (3 item)"
-            >
-              <ShoppingCart className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
-              <span className="absolute -top-1 -right-1 bg-primary-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                3
-              </span>
-            </motion.button>
+            {/* Mobile Profile */}
+            <div className="relative" data-profile-dropdown>
+              <motion.button
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                aria-label="Profile pengguna"
+              >
+                {user ? (
+                  <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-medium">
+                      {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+                    </span>
+                  </div>
+                ) : (
+                  <User className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
+                )}
+              </motion.button>
+
+              {/* Mobile Profile Dropdown */}
+              <AnimatePresence>
+                {isProfileOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-64 bg-white dark:bg-dark-800 rounded-lg shadow-xl border border-neutral-200 dark:border-dark-700 py-2 z-50"
+                  >
+                    {user ? (
+                      <>
+                        {/* User Info */}
+                        <div className="px-4 py-3 border-b border-neutral-100 dark:border-dark-700">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
+                              <span className="text-white font-medium">
+                                {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                {user.name || user.email?.split('@')[0] || 'User'}
+                              </p>
+                              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                {user.email}
+                              </p>
+                              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${
+                                user.role === 'ADMIN' 
+                                  ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400' 
+                                  : 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                              }`}>
+                                {user.role === 'ADMIN' ? 'Admin' : 'User'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Menu Items */}
+                        <div className="py-1">
+                          <button
+                            onClick={() => {
+                              handleProfile();
+                              setIsProfileOpen(false);
+                            }}
+                            className="w-full flex items-center px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-dark-700 transition-colors"
+                          >
+                            <UserCircle className="w-4 h-4 mr-3" />
+                            {user.role === 'ADMIN' ? 'Admin Dashboard' : 'Profile Saya'}
+                          </button>
+                          
+                          {user.role !== 'ADMIN' && (
+                            <button
+                              onClick={() => {
+                                router.push('/user/settings');
+                                setIsProfileOpen(false);
+                              }}
+                              className="w-full flex items-center px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-dark-700 transition-colors"
+                            >
+                              <Settings className="w-4 h-4 mr-3" />
+                              Pengaturan
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="border-t border-neutral-100 dark:border-dark-700 pt-1">
+                          <button
+                            onClick={() => {
+                              handleLogout();
+                              setIsProfileOpen(false);
+                            }}
+                            className="w-full flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          >
+                            <LogOut className="w-4 h-4 mr-3" />
+                            Logout
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Not Logged In */}
+                        <div className="px-4 py-3">
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3">
+                            Masuk untuk mengakses fitur lengkap
+                          </p>
+                          <button
+                            onClick={() => {
+                              handleLogin();
+                              setIsProfileOpen(false);
+                            }}
+                            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                          >
+                            Masuk / Daftar
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Menu Toggle */}
             <motion.button

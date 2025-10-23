@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Product } from '@/types/product';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -40,6 +40,7 @@ export default function DashboardContent() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const lastPaymentCheckRef = useRef<number>(0);
 
   // Format order code helper function - CONSISTENT with API format
   const formatOrderCode = (orderId: number, createdAt: string) => {
@@ -160,6 +161,17 @@ export default function DashboardContent() {
   }, [orders]);
 
   const checkPaymentStatus = useCallback(async () => {
+    // Throttle API calls - don't call if called within last 10 seconds
+    const now = Date.now();
+    const lastCall = lastPaymentCheckRef.current;
+    
+    if (now - lastCall < 10000) { // 10 seconds throttle
+      console.log('Payment status check throttled');
+      return;
+    }
+    
+    lastPaymentCheckRef.current = now;
+    
     try {
       const response = await fetch('/api/payment/check-status');
       if (response.ok) {
@@ -189,16 +201,17 @@ export default function DashboardContent() {
     fetchOrders();
   }, [fetchOrders]);
 
-  // Auto-refresh for pending payments - More aggressive polling
+  // Auto-refresh for pending payments - Optimized polling
   useEffect(() => {
     const hasPendingPayments = orders.some(order => 
       order.status === 'BELUM_DIBAYAR' || (order.payment && order.payment.status === 'PENDING')
     );
 
     if (hasPendingPayments) {
+      // Start with moderate polling (30 seconds)
       const interval = setInterval(() => {
         checkPaymentStatus(); // Check payment status and refresh if needed
-      }, 2000); // Check every 2 seconds for faster updates
+      }, 30000); // Check every 30 seconds to reduce server load
 
       return () => {
         clearInterval(interval);
@@ -222,7 +235,7 @@ export default function DashboardContent() {
     };
   }, [fetchOrders]);
 
-  // Payment success notification with instant refresh
+  // Payment success notification with optimized refresh
   useEffect(() => {
     const paymentParam = searchParams.get('payment');
     if (paymentParam === 'success') {
@@ -230,20 +243,26 @@ export default function DashboardContent() {
       // Immediately refresh orders data
       fetchOrders(false);
       
-      // Also check payment status to force update
-      setTimeout(() => {
+      // Check payment status once after 5 seconds
+      const timeoutId = setTimeout(() => {
         checkPaymentStatus();
-      }, 10000);
+      }, 5000);
       
-      // Set up more frequent polling for next 30 seconds
-      const aggressiveInterval = setInterval(() => {
+      // Set up moderate polling for next 2 minutes only
+      const moderateInterval = setInterval(() => {
         checkPaymentStatus();
-      }, 10000); // Every 1 second
+      }, 15000); // Every 15 seconds
       
-      // Stop aggressive polling after 30 seconds
-      setTimeout(() => {
-        clearInterval(aggressiveInterval);
-      }, 30000);
+      // Stop moderate polling after 2 minutes
+      const stopTimeoutId = setTimeout(() => {
+        clearInterval(moderateInterval);
+      }, 120000); // 2 minutes
+      
+      return () => {
+        clearTimeout(timeoutId);
+        clearTimeout(stopTimeoutId);
+        clearInterval(moderateInterval);
+      };
     }
   }, [searchParams, fetchOrders, checkPaymentStatus]);
 
@@ -257,78 +276,78 @@ export default function DashboardContent() {
 
   return (
     <div className="min-h-screen pt-20 bg-neutral-50 dark:bg-dark-950">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 py-4 sm:py-6 lg:py-8 max-w-7xl">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100">
             Dashboard Saya
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400">
+          <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400">
             Kelola pesanan dan profile Anda
           </p>
         </div>
       </div>
 
       {/* Last updated indicator */}
-      <div className="mb-6 text-sm text-neutral-500 dark:text-neutral-400">
+      <div className="mb-4 sm:mb-6 text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">
         Terakhir diperbarui: {lastUpdated.toLocaleTimeString('id-ID')}
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white dark:bg-dark-900 rounded-xl shadow-lg p-6 border border-neutral-200 dark:border-neutral-700">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-8">
+        <div className="bg-white dark:bg-dark-900 rounded-xl shadow-lg p-3 sm:p-4 lg:p-6 border border-neutral-200 dark:border-neutral-700">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Total Pesanan</p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{stats.totalOrders}</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-medium text-neutral-600 dark:text-neutral-400 truncate">Total Pesanan</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{stats.totalOrders}</p>
             </div>
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex-shrink-0 ml-2">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-dark-900 rounded-xl shadow-lg p-6 border border-neutral-200 dark:border-neutral-700">
+        <div className="bg-white dark:bg-dark-900 rounded-xl shadow-lg p-3 sm:p-4 lg:p-6 border border-neutral-200 dark:border-neutral-700">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Sedang Diproses</p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{stats.sedangDiproses}</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-medium text-neutral-600 dark:text-neutral-400 truncate">Sedang Diproses</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{stats.sedangDiproses}</p>
             </div>
-            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-              <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 sm:p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex-shrink-0 ml-2">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-dark-900 rounded-xl shadow-lg p-6 border border-neutral-200 dark:border-neutral-700">
+        <div className="bg-white dark:bg-dark-900 rounded-xl shadow-lg p-3 sm:p-4 lg:p-6 border border-neutral-200 dark:border-neutral-700">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Selesai</p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{stats.selesai}</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-medium text-neutral-600 dark:text-neutral-400 truncate">Selesai</p>
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{stats.selesai}</p>
             </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-              <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-lg flex-shrink-0 ml-2">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-dark-900 rounded-xl shadow-lg p-6 border border-neutral-200 dark:border-neutral-700">
+        <div className="bg-white dark:bg-dark-900 rounded-xl shadow-lg p-3 sm:p-4 lg:p-6 border border-neutral-200 dark:border-neutral-700">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Total Belanja</p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-medium text-neutral-600 dark:text-neutral-400 truncate">Total Belanja</p>
+              <p className="text-sm sm:text-base lg:text-xl font-bold text-neutral-900 dark:text-neutral-100">
                 Rp {stats.totalBelanja.toLocaleString('id-ID')}
               </p>
             </div>
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex-shrink-0 ml-2">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
             </div>
@@ -337,8 +356,8 @@ export default function DashboardContent() {
       </div>
 
       {/* Orders Section */}
-      <div className="bg-white dark:bg-dark-900 rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-6">
+      <div className="bg-white dark:bg-dark-900 rounded-xl shadow-lg p-3 sm:p-4 lg:p-6">
+        <h2 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-4 sm:mb-6">
           Riwayat Pesanan
         </h2>
 
@@ -352,21 +371,21 @@ export default function DashboardContent() {
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {orders.map((order) => (
-              <div key={order.id} className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="font-semibold text-lg text-neutral-900 dark:text-neutral-100">
+              <div key={order.id} className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 sm:p-4 lg:p-6">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-4">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-base sm:text-lg text-neutral-900 dark:text-neutral-100">
                       Pesanan {formatOrderCode(order.id, order.createdAt)}
                     </h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm">
+                    <p className="text-neutral-600 dark:text-neutral-400 text-xs sm:text-sm">
                       {formatDateTime(order.createdAt)}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <div className="mb-2">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  <div className="flex sm:flex-col items-start sm:items-end justify-between sm:justify-start gap-2 sm:gap-2">
+                    <div>
+                      <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
                         order.status === 'DIBAYAR' ? 'bg-green-100 text-green-800' :
                         order.status === 'BELUM_DIBAYAR' ? 'bg-red-100 text-red-800' :
                         order.status === 'SIAP_DIAMBIL' ? 'bg-blue-100 text-blue-800' :
@@ -380,30 +399,27 @@ export default function DashboardContent() {
                          'Selesai'}
                       </span>
                     </div>
-                    <p className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
-                      Rp {order.totalAmount.toLocaleString('id-ID')}
-                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {order.items.map((item: OrderItem) => (
-                    <div key={item.id} className="flex items-center gap-4 p-3 bg-neutral-50 dark:bg-dark-800 rounded-lg">
+                    <div key={item.id} className="flex items-center gap-3 sm:gap-4 p-2 sm:p-3 bg-neutral-50 dark:bg-dark-800 rounded-lg">
                       <img
                         src={item.product.image || '/api/placeholder/80/80'}
                         alt={item.product.name}
-                        className="w-16 h-16 object-cover rounded-lg"
+                        className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg flex-shrink-0"
                       />
-                      <div className="flex-1">
-                        <h4 className="font-medium text-neutral-900 dark:text-neutral-100">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm sm:text-base text-neutral-900 dark:text-neutral-100 truncate">
                           {item.product.name}
                         </h4>
-                        <p className="text-neutral-600 dark:text-neutral-400">
+                        <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
                           {item.quantity} × Rp {item.price.toLocaleString('id-ID')}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-neutral-900 dark:text-neutral-100">
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-semibold text-sm sm:text-base text-neutral-900 dark:text-neutral-100">
                           Rp {(item.quantity * item.price).toLocaleString('id-ID')}
                         </p>
                       </div>
@@ -413,12 +429,12 @@ export default function DashboardContent() {
 
                 {/* Action buttons for pending payments */}
                 {order.status === 'BELUM_DIBAYAR' && (
-                  <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                  <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-neutral-200 dark:border-neutral-700">
                     <a
                       href={order.payment?.paymentUrl || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                      className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base w-full sm:w-auto justify-center sm:justify-start"
                     >
                       Bayar Sekarang
                       <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
