@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 // Helper function to format order code
 const formatOrderCode = (orderId: number, createdAt: Date) => {
@@ -41,9 +42,9 @@ export async function GET(request: Request) {
     console.log('🔍 Search query:', searchQuery);
 
     // Build where clause
-    const whereClause: any = {
+    const whereClause: Prisma.OrderWhereInput = {
       status: {
-        not: 'BELUM_DIBAYAR'
+        not: 'BELUM_DIBAYAR' as Prisma.EnumOrderStatusFilter['not']
       }
     };
 
@@ -65,7 +66,44 @@ export async function GET(request: Request) {
       }
     }
 
-    const orders = await prisma.order.findMany({
+    type OrderWithRelations = Prisma.OrderGetPayload<{
+      include: {
+        user: {
+          select: {
+            id: true;
+            name: true;
+            email: true;
+            phone: true;
+          }
+        };
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true;
+                name: true;
+                image: true;
+              }
+            };
+            variantOptions: {
+              select: {
+                id: true;
+                name: true;
+              }
+            }
+          }
+        };
+        payment: {
+          select: {
+            id: true;
+            status: true;
+            xenditInvoiceId: true;
+          }
+        }
+      }
+    }>;
+
+    const orders: OrderWithRelations[] = await prisma.order.findMany({
       where: whereClause,
       include: {
         user: {
@@ -109,24 +147,50 @@ export async function GET(request: Request) {
     console.log('📦 Found orders:', orders.length);
 
     // Transform orders to include paymentStatus field
-    const transformedOrders = orders.map(order => ({
-      id: order.id,
-      orderCode: formatOrderCode(order.id, order.createdAt),
-      totalAmount: order.totalAmount,
-      status: order.status.toLowerCase(),
-      paymentStatus: order.payment?.status?.toLowerCase() || 'unknown',
-      user: order.user,
-      createdAt: order.createdAt,
-      items: order.items.map(item => ({
-        id: item.id,
-        productName: item.product.name,
-        variantName: item.variantOptions.length > 0 
-          ? item.variantOptions.map(opt => opt.name).join(', ')
-          : null,
-        quantity: item.quantity,
-        price: item.price
-      }))
-    }));
+    const transformedOrders = orders.map(order => {
+      // Determine payment status properly
+      let paymentStatus = 'PENDING';
+      
+      if (order.payment) {
+        // Map Xendit payment status to our system
+        switch (order.payment.status) {
+          case 'PAID':
+            paymentStatus = 'PAID';
+            break;
+          case 'PENDING':
+            paymentStatus = 'PENDING';
+            break;
+          case 'FAILED':
+          case 'EXPIRED':
+            paymentStatus = 'FAILED';
+            break;
+          default:
+            paymentStatus = order.payment.status;
+        }
+      } else if (order.status === 'DIBAYAR' || order.status === 'SIAP_DIAMBIL' || order.status === 'SUDAH_DIAMBIL' || order.status === 'SELESAI') {
+        // If order status indicates payment completion but no payment record, assume paid
+        paymentStatus = 'PAID';
+      }
+
+      return {
+        id: order.id,
+        orderCode: formatOrderCode(order.id, order.createdAt),
+        totalAmount: order.totalAmount,
+        status: order.status,
+        paymentStatus: paymentStatus,
+        user: order.user,
+        createdAt: order.createdAt,
+        items: order.items.map(item => ({
+          id: item.id,
+          productName: item.product.name,
+          variantName: item.variantOptions.length > 0 
+            ? item.variantOptions.map(opt => opt.name).join(', ')
+            : null,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      };
+    });
 
     console.log('✅ Transformed orders:', transformedOrders.map(o => ({ id: o.id, orderCode: o.orderCode })));
 
