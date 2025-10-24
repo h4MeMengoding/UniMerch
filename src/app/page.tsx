@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Grid, List, SlidersHorizontal } from 'lucide-react';
+import { Grid, List, SlidersHorizontal, Search } from 'lucide-react';
 import HeroSection from '@/components/ui/HeroSection';
 import ProductCard from '@/components/ui/ProductCard';
 import FilterSidebar from '@/components/ui/FilterSidebar';
@@ -48,15 +49,32 @@ const mockFilters = [
 ];
 
 export default function Home() {
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('search');
+  
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('featured');
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    // Filter products based on search query
+    if (searchQuery && searchQuery.trim() !== '') {
+      const filtered = products.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+      setFilteredProducts(filtered);
+    } else {
+      setFilteredProducts(products);
+    }
+  }, [products, searchQuery]);
 
   const fetchProducts = async () => {
     try {
@@ -87,11 +105,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark-950 transition-colors duration-300 pt-16">
-      {/* Hero Section */}
-      <HeroSection />
+      {/* Hero Section - Hide when searching */}
+      {!searchQuery && <HeroSection />}
 
       {/* Product Listing Section */}
-      <section className="py-12">
+      <section className={searchQuery ? "py-12 pt-24" : "py-12"}>
         <div className="container mx-auto px-4 lg:px-6">
           {/* Section Header */}
           <motion.div
@@ -101,12 +119,33 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold text-neutral-900 dark:text-white mb-4">
-              Produk Unggulan
-            </h2>
-            <p className="text-lg text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto">
-              Temukan koleksi merchandise pilihan terbaik disini.
-            </p>
+            {searchQuery ? (
+              <>
+                <div className="flex items-center justify-center mb-4">
+                  <Search className="w-8 h-8 text-primary-600 mr-2" />
+                  <h2 className="text-3xl lg:text-4xl font-bold text-neutral-900 dark:text-white">
+                    Hasil Pencarian
+                  </h2>
+                </div>
+                <p className="text-lg text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto">
+                  Menampilkan hasil untuk: <span className="font-semibold text-primary-600">"{searchQuery}"</span>
+                </p>
+                {filteredProducts.length === 0 && (
+                  <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
+                    Tidak ditemukan produk yang sesuai dengan pencarian Anda
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <h2 className="text-3xl lg:text-4xl font-bold text-neutral-900 dark:text-white mb-4">
+                  Produk Unggulan
+                </h2>
+                <p className="text-lg text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto">
+                  Temukan koleksi merchandise pilihan terbaik disini.
+                </p>
+              </>
+            )}
           </motion.div>
 
           <div className="flex">
@@ -140,7 +179,11 @@ export default function Home() {
 
                   {/* Results Count */}
                   <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                    Menampilkan {products.length} produk
+                    {searchQuery ? (
+                      <>Menampilkan {filteredProducts.length} dari {products.length} produk</>
+                    ) : (
+                      <>Menampilkan {filteredProducts.length} produk</>
+                    )}
                   </span>
                 </div>
 
@@ -211,8 +254,8 @@ export default function Home() {
                       </div>
                     </div>
                   ))
-                ) : products.length > 0 ? (
-                  products.map((product: Product, index: number) => (
+                ) : filteredProducts.length > 0 ? (
+                  filteredProducts.map((product: Product, index: number) => (
                     <motion.div
                       key={product.id}
                       initial={{ opacity: 0, y: 20 }}
@@ -227,13 +270,20 @@ export default function Home() {
                   // Empty state
                   <div className="col-span-full text-center py-12">
                     <div className="w-16 h-16 bg-neutral-200 dark:bg-dark-700 rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-2xl">📦</span>
+                      {searchQuery ? (
+                        <Search className="w-6 h-6 text-neutral-400" />
+                      ) : (
+                        <span className="text-2xl">📦</span>
+                      )}
                     </div>
                     <h3 className="text-lg font-medium text-neutral-900 dark:text-white mb-2">
-                      Belum ada produk
+                      {searchQuery ? 'Produk tidak ditemukan' : 'Belum ada produk'}
                     </h3>
                     <p className="text-neutral-600 dark:text-neutral-400">
-                      Produk akan muncul disini setelah admin menambahkannya
+                      {searchQuery 
+                        ? `Tidak ada produk yang cocok dengan "${searchQuery}". Coba kata kunci lain.`
+                        : 'Produk akan muncul disini setelah admin menambahkannya'
+                      }
                     </p>
                   </div>
                 )}

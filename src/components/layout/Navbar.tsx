@@ -11,6 +11,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showThemeTooltip, setShowThemeTooltip] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -68,13 +69,13 @@ export default function Navbar() {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  const menuItems = [
-    { label: 'Beranda', href: '/' },
-    { label: 'Toko', href: '/shop' },
-    { label: 'Kategori', href: '/categories' },
-    { label: 'Tentang', href: '/about' },
-    { label: 'Kontak', href: '/contact' },
-  ];
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Redirect to search results page with query
+      router.push(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-dark-900/95 backdrop-blur-sm border-b border-neutral-200 dark:border-dark-700 transition-colors duration-300">
@@ -104,33 +105,30 @@ export default function Navbar() {
             </motion.a>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {menuItems.map((item) => (
-              <motion.a
-                key={item.label}
-                href={item.href}
-                className="text-neutral-700 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors relative group"
-                whileHover={{ y: -1 }}
-              >
-                {item.label}
-                <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-primary-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
-              </motion.a>
-            ))}
+          {/* Desktop Search Bar */}
+          <div className="hidden md:flex items-center flex-1 max-w-2xl mx-8">
+            <form onSubmit={handleSearch} className="w-full relative">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Cari produk yang Anda inginkan..."
+                  className="w-full pl-10 pr-4 py-3 bg-neutral-50 dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-full text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
+                >
+                  Cari
+                </button>
+              </div>
+            </form>
           </div>
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            {/* Search */}
-            <motion.button
-              className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              aria-label="Cari produk"
-            >
-              <Search className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
-            </motion.button>
-
             {/* Theme Toggle */}
             <div className="relative" data-theme-toggle>
               <motion.button
@@ -451,36 +449,31 @@ export default function Navbar() {
               className="md:hidden border-t border-neutral-200 dark:border-dark-700 bg-white dark:bg-dark-900"
             >
               <div className="py-4 space-y-4">
-                {/* Mobile Navigation Links */}
-                <div className="space-y-2">
-                  {menuItems.map((item, index) => (
-                    <motion.a
-                      key={item.label}
-                      href={item.href}
-                      className="block px-4 py-2 text-neutral-700 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-neutral-50 dark:hover:bg-dark-800 rounded-md transition-colors"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {item.label}
-                    </motion.a>
-                  ))}
+                {/* Mobile Search Bar */}
+                <div className="px-4">
+                  <form onSubmit={handleSearch} className="w-full">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Cari produk..."
+                        className="w-full pl-10 pr-16 py-3 bg-neutral-50 dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-full text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      />
+                      <button
+                        type="submit"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+                      >
+                        Cari
+                      </button>
+                    </div>
+                  </form>
                 </div>
 
                 {/* Mobile Actions */}
                 <div className="border-t border-neutral-200 dark:border-dark-700 pt-4">
                   <div className="flex items-center justify-around">
-                    <motion.button
-                      className="flex flex-col items-center space-y-1 p-3 rounded-md hover:bg-neutral-50 dark:hover:bg-dark-800 transition-colors"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      aria-label="Cari produk"
-                    >
-                      <Search className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
-                      <span className="text-xs text-neutral-600 dark:text-neutral-400">Cari</span>
-                    </motion.button>
-
                     <motion.button
                       onClick={toggleTheme}
                       className="flex flex-col items-center space-y-1 p-3 rounded-md hover:bg-neutral-50 dark:hover:bg-dark-800 transition-colors"
