@@ -51,6 +51,7 @@ const mockFilters = [
 export default function Home() {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
+  const categoryQuery = searchParams.get('category');
   
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -64,17 +65,26 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Filter products based on search query
+    // Filter products based on search query and category
+    let filtered = products;
+    
+    // Filter by search query
     if (searchQuery && searchQuery.trim() !== '') {
-      const filtered = products.filter(product =>
+      filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()))
       );
-      setFilteredProducts(filtered);
-    } else {
-      setFilteredProducts(products);
     }
-  }, [products, searchQuery]);
+    
+    // Filter by category
+    if (categoryQuery && categoryQuery.trim() !== '') {
+      filtered = filtered.filter(product =>
+        product.category && product.category.toLowerCase().includes(categoryQuery.toLowerCase())
+      );
+    }
+    
+    setFilteredProducts(filtered);
+  }, [products, searchQuery, categoryQuery]);
 
   const fetchProducts = async () => {
     try {
@@ -105,12 +115,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark-950 transition-colors duration-300 pt-16">
-      {/* Hero Section - Hide when searching */}
-      {!searchQuery && <HeroSection />}
+      {/* Hero Section - Hide when searching or filtering */}
+      {!searchQuery && !categoryQuery && <HeroSection />}
 
       {/* Product Listing Section */}
-      <section className={searchQuery ? "py-12 pt-24" : "py-12"}>
-        <div className="container mx-auto px-4 lg:px-6">
+      <section className={(searchQuery || categoryQuery) ? "py-12 pt-24" : "py-6 sm:py-8 md:py-12"}>
+        <div className="container mx-auto px-4 max-w-7xl">
           {/* Section Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -136,6 +146,23 @@ export default function Home() {
                   </p>
                 )}
               </>
+            ) : categoryQuery ? (
+              <>
+                <div className="flex items-center justify-center mb-4">
+                  <span className="text-4xl mr-3">🏷️</span>
+                  <h2 className="text-3xl lg:text-4xl font-bold text-neutral-900 dark:text-white">
+                    Kategori {categoryQuery}
+                  </h2>
+                </div>
+                <p className="text-lg text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto">
+                  Produk dalam kategori: <span className="font-semibold text-primary-600">{categoryQuery}</span>
+                </p>
+                {filteredProducts.length === 0 && (
+                  <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
+                    Tidak ditemukan produk dalam kategori ini
+                  </p>
+                )}
+              </>
             ) : (
               <>
                 <h2 className="text-3xl lg:text-4xl font-bold text-neutral-900 dark:text-white mb-4">
@@ -158,28 +185,12 @@ export default function Home() {
 
             {/* Main Content */}
             <div className="flex-1 lg:ml-6">
-              {/* Toolbar */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 p-4 bg-neutral-50 dark:bg-dark-800 rounded-lg"
-              >
-                <div className="flex items-center space-x-4">
-                  {/* Mobile Filter Button */}
-                  <button
-                    onClick={() => setIsFilterOpen(true)}
-                    className="lg:hidden flex items-center space-x-2 px-4 py-2 border border-neutral-300 dark:border-dark-600 text-neutral-700 dark:text-neutral-300 rounded-md hover:bg-neutral-100 dark:hover:bg-dark-700 transition-colors"
-                    aria-label="Buka filter"
-                  >
-                    <SlidersHorizontal className="w-4 h-4" />
-                    <span>Filter</span>
-                  </button>
-
+              {/* Filter Buttons & Results Count */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div className="flex items-center flex-wrap gap-3">
                   {/* Results Count */}
                   <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                    {searchQuery ? (
+                    {searchQuery || categoryQuery ? (
                       <>Menampilkan {filteredProducts.length} dari {products.length} produk</>
                     ) : (
                       <>Menampilkan {filteredProducts.length} produk</>
@@ -187,12 +198,22 @@ export default function Home() {
                   </span>
                 </div>
 
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
+                  {/* Filter Button */}
+                  <button
+                    onClick={() => setIsFilterOpen(true)}
+                    className="flex items-center space-x-2 px-3 py-2 bg-white dark:bg-dark-800 border border-neutral-300 dark:border-dark-600 text-neutral-700 dark:text-neutral-300 rounded-lg hover:bg-neutral-50 dark:hover:bg-dark-700 transition-colors text-sm"
+                    aria-label="Filter produk"
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    <span>Filter</span>
+                  </button>
+                  
                   {/* Sort Dropdown */}
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="px-3 py-2 border border-neutral-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-neutral-900 dark:text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="px-3 py-2 border border-neutral-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-neutral-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     aria-label="Urutkan produk"
                   >
                     {sortOptions.map((option) => (
@@ -203,7 +224,7 @@ export default function Home() {
                   </select>
 
                   {/* View Mode Toggle */}
-                  <div className="hidden sm:flex items-center space-x-1 p-1 bg-white dark:bg-dark-700 rounded-md border border-neutral-300 dark:border-dark-600">
+                  <div className="hidden sm:flex items-center space-x-1 p-1 bg-white dark:bg-dark-700 rounded-lg border border-neutral-300 dark:border-dark-600">
                     <button
                       onClick={() => setViewMode('grid')}
                       className={`p-2 rounded transition-colors ${
@@ -228,7 +249,7 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Product Grid */}
               <motion.div

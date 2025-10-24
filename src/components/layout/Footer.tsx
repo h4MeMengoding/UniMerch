@@ -61,7 +61,7 @@ export default function Footer() {
   return (
     <footer className="bg-neutral-900 dark:bg-dark-950 text-white">
       {/* Main Footer */}
-      <div className="container mx-auto px-4 lg:px-6 py-12">
+      <div className="container mx-auto px-4 max-w-7xl py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-6">
@@ -195,7 +195,7 @@ export default function Footer() {
 
       {/* Bottom Footer */}
       <div className="border-t border-neutral-800 dark:border-dark-700">
-        <div className="container mx-auto px-4 lg:px-6 py-6">
+        <div className="container mx-auto px-4 max-w-7xl py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <motion.p
               initial={{ opacity: 0 }}

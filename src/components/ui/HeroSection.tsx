@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Shirt, Coffee, Backpack, Gift } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 // Banner slider data - lebih banyak untuk demo
 const bannerData = [
@@ -24,21 +25,18 @@ const bannerData = [
   }
 ];
 
-// Temporary categories data - akan diganti dengan data dari database
-const tempCategories = [
-  { id: 1, name: "Pakaian", icon: Shirt },
-  { id: 2, name: "Aksesoris", icon: Coffee },
-  { id: 3, name: "Tas & Dompet", icon: Backpack },
-  { id: 4, name: "Souvenir", icon: Gift },
-  { id: 5, name: "Elektronik", icon: Coffee },
-  { id: 6, name: "Olahraga", icon: Shirt }
-];
-
 export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [categories, setCategories] = useState(tempCategories);
+  const [categories, setCategories] = useState<any[]>([]);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
+  const router = useRouter();
+
+  // Handle category click to navigate to products
+  const handleCategoryClick = (category: any) => {
+    // Navigate to products page with category filter
+    router.push(`/?category=${encodeURIComponent(category.name)}`);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -47,23 +45,30 @@ export default function HeroSection() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch categories from database
+  // Fetch categories from database - using admin pattern
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await fetch('/api/admin/categories');
         if (response.ok) {
           const data = await response.json();
-          // Map database data to include default icons
-          const categoriesWithIcons = data.map((category: any, index: number) => ({
-            ...category,
-            icon: tempCategories[index % tempCategories.length]?.icon || Shirt
-          }));
-          setCategories(categoriesWithIcons);
+          console.log('Categories API response:', data); // Debug log
+          
+          // Use the same pattern as admin page
+          if (data.categories && Array.isArray(data.categories)) {
+            setCategories(data.categories);
+            console.log('Set categories:', data.categories);
+          } else {
+            console.warn('Categories not found in response or not an array:', data);
+            setCategories([]);
+          }
+        } else {
+          console.error('Failed to fetch categories, status:', response.status);
+          setCategories([]);
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
-        // Keep using temp data if fetch fails
+        setCategories([]);
       }
     };
 
@@ -104,16 +109,17 @@ export default function HeroSection() {
 
   return (
     <div className="space-y-0">
-      {/* Banner Slider Section - Improved Mobile UI */}
-      <section className="relative bg-gray-50 dark:bg-dark-900">
-        <div className="relative h-[160px] xs:h-[180px] sm:h-[220px] md:h-[250px] lg:h-[280px] overflow-hidden rounded-lg xs:rounded-xl sm:rounded-2xl mx-1 xs:mx-2 sm:mx-4 lg:mx-6 mt-1 xs:mt-2 sm:mt-4">
-          {/* Slider Container */}
-          <div 
-            className="relative w-full h-full"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
+      {/* Banner Slider Section - Clean Integration */}
+      <section className="relative pt-6 sm:pt-8 md:pt-10 lg:pt-12">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="relative h-[160px] xs:h-[180px] sm:h-[220px] md:h-[250px] lg:h-[280px] overflow-hidden rounded-lg xs:rounded-xl sm:rounded-2xl">
+            {/* Slider Container */}
+            <div 
+              className="relative w-full h-full"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
             <motion.div
               className="flex h-full"
               animate={{ x: `-${currentSlide * 100}%` }}
@@ -193,63 +199,42 @@ export default function HeroSection() {
           </div>
 
         </div>
+        </div>
       </section>
 
-      {/* Categories Section - Mobile First Responsive */}
-      <section className="bg-white dark:bg-dark-900 py-4 sm:py-6">
-        <div className="container mx-auto px-3 sm:px-4 lg:px-6">
-          {/* Section Header - Mobile optimized */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-4 sm:mb-6"
-          >
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">
-              Kategori Produk
-            </h2>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 hidden sm:block">
-              Temukan produk sesuai kebutuhan Anda
-            </p>
-          </motion.div>
-
-          {/* Categories Grid - Mobile First */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4"
-          >
-            {categories.slice(0, 6).map((category, index) => {
-              const IconComponent = category.icon;
-              return (
-                <motion.div
-                  key={category.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="group cursor-pointer touch-manipulation"
-                >
-                  <div className="bg-white dark:bg-dark-800 rounded-lg sm:rounded-xl p-2 sm:p-3 md:p-4 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-dark-700 text-center">
-                    {/* Icon - Responsive sizing */}
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-primary-100 dark:bg-primary-900/30 rounded-md sm:rounded-lg flex items-center justify-center mx-auto mb-1.5 sm:mb-2 md:mb-3">
-                      <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-primary-600 dark:text-primary-400" />
+      {/* Categories Section - Database Only */}
+      <section className="py-8 sm:py-10 md:py-12">
+        <div className="container mx-auto px-4 max-w-7xl">
+          {/* Categories Grid - Centered with Click */}
+          {Array.isArray(categories) && categories.length > 0 ? (
+            <div className="flex justify-center">
+              <div className="flex overflow-x-auto scrollbar-hide space-x-3 sm:space-x-4 pb-2 max-w-full">
+                {categories.map((category) => (
+                  <div
+                    key={category.id}
+                    onClick={() => handleCategoryClick(category)}
+                    className="flex-shrink-0 cursor-pointer"
+                  >
+                    <div className="flex items-center space-x-2 bg-white dark:bg-dark-800 rounded-full px-3 py-2 shadow-sm border border-gray-200 dark:border-dark-600">
+                      {/* Consistent Icon */}
+                      <span className="text-lg">🏷️</span>
+                      
+                      {/* Category Name */}
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                        {category.name}
+                      </span>
                     </div>
-
-                    {/* Category Name - Responsive text */}
-                    <h3 className="font-medium text-xs sm:text-sm md:text-sm text-gray-900 dark:text-white leading-tight">
-                      {category.name}
-                    </h3>
                   </div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Memuat kategori...
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>
