@@ -77,6 +77,22 @@ export default function Navbar() {
     }
   };
 
+  // Generate random avatar URL using user's email or name as seed
+  const generateAvatarUrl = (seed: string) => {
+    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+  };
+
+  // Get first name only
+  const getFirstName = (fullName: string | null | undefined) => {
+    if (!fullName) return '';
+    return fullName.split(' ')[0];
+  };
+
+  // Get role display text
+  const getRoleText = (role: string | undefined) => {
+    return role === 'ADMIN' ? 'Penjual' : 'Pembeli';
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-dark-900/95 backdrop-blur-sm border-b border-neutral-200 dark:border-dark-700 transition-colors duration-300">
       <nav className="container mx-auto px-4 lg:px-6" aria-label="Navigasi utama">
@@ -114,7 +130,7 @@ export default function Navbar() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari produk yang Anda inginkan..."
+                  placeholder="Cari produk..."
                   className="w-full pl-10 pr-4 py-3 bg-neutral-50 dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-full text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                 />
                 <button
@@ -175,29 +191,41 @@ export default function Navbar() {
             <div className="relative" data-profile-dropdown>
               <motion.button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center space-x-2 p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors"
+                className="flex items-center space-x-3 p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="Profile pengguna"
               >
                 {user ? (
                   <>
-                    <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">
-                        {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+                    <img
+                      src={generateAvatarUrl(user.email || user.name || 'default')}
+                      alt="Profile Avatar"
+                      className="w-10 h-10 rounded-full border-2 border-primary-200 dark:border-primary-600"
+                    />
+                    <div className="hidden lg:flex flex-col items-start">
+                      <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+                        {getFirstName(user.name) || user.email?.split('@')[0] || 'User'}
+                      </span>
+                      <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                        {getRoleText(user.role)}
                       </span>
                     </div>
-                    <span className="hidden lg:block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                      {user.name || user.email?.split('@')[0] || 'User'}
-                    </span>
                     <ChevronDown className="hidden lg:block w-4 h-4 text-neutral-500" />
                   </>
                 ) : (
                   <>
-                    <User className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
-                    <span className="hidden lg:block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                      Login
-                    </span>
+                    <div className="w-10 h-10 bg-neutral-200 dark:bg-dark-700 rounded-full flex items-center justify-center">
+                      <User className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                    </div>
+                    <div className="hidden lg:flex flex-col items-start">
+                      <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                        Masuk
+                      </span>
+                      <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                        Untuk berbelanja
+                      </span>
+                    </div>
                   </>
                 )}
               </motion.button>
@@ -217,24 +245,24 @@ export default function Navbar() {
                         {/* User Info */}
                         <div className="px-4 py-3 border-b border-neutral-100 dark:border-dark-700">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
-                              <span className="text-white font-medium">
-                                {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
-                              </span>
-                            </div>
+                            <img
+                              src={generateAvatarUrl(user.email || user.name || 'default')}
+                              alt="Profile Avatar"
+                              className="w-12 h-12 rounded-full border-2 border-primary-200 dark:border-primary-600"
+                            />
                             <div>
                               <p className="text-sm font-semibold text-neutral-900 dark:text-white">
-                                {user.name || user.email?.split('@')[0] || 'User'}
+                                {getFirstName(user.name) || user.email?.split('@')[0] || 'User'}
                               </p>
                               <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                 {user.email}
                               </p>
                               <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${
                                 user.role === 'ADMIN' 
-                                  ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400' 
+                                  ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
                                   : 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
                               }`}>
-                                {user.role === 'ADMIN' ? 'Admin' : 'User'}
+                                {getRoleText(user.role)}
                               </span>
                             </div>
                           </div>
@@ -308,13 +336,15 @@ export default function Navbar() {
                 aria-label="Profile pengguna"
               >
                 {user ? (
-                  <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-medium">
-                      {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
-                    </span>
-                  </div>
+                  <img
+                    src={generateAvatarUrl(user.email || user.name || 'default')}
+                    alt="Profile Avatar"
+                    className="w-8 h-8 rounded-full border-2 border-primary-200 dark:border-primary-600"
+                  />
                 ) : (
-                  <User className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
+                  <div className="w-8 h-8 bg-neutral-200 dark:bg-dark-700 rounded-full flex items-center justify-center">
+                    <User className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                  </div>
                 )}
               </motion.button>
 
@@ -333,24 +363,24 @@ export default function Navbar() {
                         {/* User Info */}
                         <div className="px-4 py-3 border-b border-neutral-100 dark:border-dark-700">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
-                              <span className="text-white font-medium">
-                                {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
-                              </span>
-                            </div>
+                            <img
+                              src={generateAvatarUrl(user.email || user.name || 'default')}
+                              alt="Profile Avatar"
+                              className="w-12 h-12 rounded-full border-2 border-primary-200 dark:border-primary-600"
+                            />
                             <div>
                               <p className="text-sm font-semibold text-neutral-900 dark:text-white">
-                                {user.name || user.email?.split('@')[0] || 'User'}
+                                {getFirstName(user.name) || user.email?.split('@')[0] || 'User'}
                               </p>
                               <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                 {user.email}
                               </p>
                               <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${
                                 user.role === 'ADMIN' 
-                                  ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400' 
+                                  ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
                                   : 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
                               }`}>
-                                {user.role === 'ADMIN' ? 'Admin' : 'User'}
+                                {getRoleText(user.role)}
                               </span>
                             </div>
                           </div>
@@ -514,23 +544,25 @@ export default function Navbar() {
                     >
                       {user ? (
                         <>
-                          <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center">
-                            <span className="text-white text-xs font-medium">
-                              {user.name?.charAt(0).toUpperCase() || 'U'}
-                            </span>
-                          </div>
+                          <img
+                            src={generateAvatarUrl(user.email || user.name || 'default')}
+                            alt="Profile Avatar"
+                            className="w-8 h-8 rounded-full border-2 border-primary-200 dark:border-primary-600"
+                          />
                           <span className="text-xs text-neutral-600 dark:text-neutral-400">
-                            {user.name?.split(' ')[0] || 'Profile'}
+                            {getFirstName(user.name) || 'Profile'}
                           </span>
                           {user.role === 'ADMIN' && (
-                            <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                              A
+                            <span className="absolute top-1 right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                              P
                             </span>
                           )}
                         </>
                       ) : (
                         <>
-                          <User className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
+                          <div className="w-8 h-8 bg-neutral-200 dark:bg-dark-700 rounded-full flex items-center justify-center">
+                            <User className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                          </div>
                           <span className="text-xs text-neutral-600 dark:text-neutral-400">Login</span>
                         </>
                       )}
