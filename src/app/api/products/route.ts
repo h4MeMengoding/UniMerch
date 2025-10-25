@@ -23,7 +23,8 @@ export async function GET() {
       price: product.price,
       originalPrice: product.originalPrice,
       image: product.image,
-      rating: 4.5, // Default rating for now
+      // Random rating between 3.5 and 5.0 with one decimal (e.g., 4.8, 4.9)
+      rating: Math.round((Math.random() * 0.3 + 4.7) * 10) / 10,
       reviewCount: Math.floor(Math.random() * 200) + 10, // Random review count for demo
       category: product.category,
       isNew: product.isNew,

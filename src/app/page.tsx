@@ -1,59 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+export const dynamic = 'force-dynamic';
+
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Grid, List, SlidersHorizontal, Search } from 'lucide-react';
 import HeroSection from '@/components/ui/HeroSection';
 import ProductCard from '@/components/ui/ProductCard';
 import FilterSidebar from '@/components/ui/FilterSidebar';
 import { Product } from '@/types/product';
-
-// Mock data untuk filter merchandise
-const mockFilters = [
-  {
-    id: 'category',
-    title: 'Kategori',
-    type: 'checkbox' as const,
-    options: [
-      { id: 'pakaian', label: 'Pakaian', count: 45 },
-      { id: 'tas-aksesoris', label: 'Tas & Aksesoris', count: 32 },
-      { id: 'souvenir', label: 'Souvenir', count: 28 },
-      { id: 'alat-tulis', label: 'Alat Tulis', count: 19 },
-      { id: 'aksesoris', label: 'Aksesoris', count: 24 },
-    ],
-  },
-  {
-    id: 'price',
-    title: 'Rentang Harga',
-    type: 'range' as const,
-    min: 0,
-    max: 500000,
-  },
-  {
-    id: 'rating',
-    title: 'Rating Pelanggan',
-    type: 'checkbox' as const,
-    options: [
-      { id: '5-stars', label: '5 Bintang', count: 12 },
-      { id: '4-stars', label: '4 Bintang & Lebih', count: 28 },
-      { id: '3-stars', label: '3 Bintang & Lebih', count: 45 },
-    ],
-  },
-  {
-    id: 'color',
-    title: 'Warna',
-    type: 'color' as const,
-    colors: ['#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'],
-  },
-];
+import type { FilterSection } from '@/components/ui/FilterSidebar';
 
 export default function Home() {
-  const searchParams = useSearchParams();
-  const searchQuery = searchParams.get('search');
-  const categoryQuery = searchParams.get('category');
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
+  const [categoryQuery, setCategoryQuery] = useState<string | null>(null);
   
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterSection[]>([]);
+  // color/variants removed — color filter no longer used
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('featured');
   const [products, setProducts] = useState<Product[]>([]);
@@ -61,8 +25,56 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchProducts();
+    // no-op: color/variant fetching removed
   }, []);
+
+  const fetchFilters = useCallback(async () => {
+    try {
+      const res = await fetch('/api/filters');
+      if (!res.ok) return;
+      const data = await res.json();
+
+      const built: FilterSection[] = [];
+
+      if (data.categories) {
+        built.push({
+          id: 'category',
+          title: 'Kategori',
+          type: 'checkbox',
+          // use category label as option id so it matches product.category string
+          options: data.categories.map((c: { label: string; count: number }) => ({ id: c.label, label: c.label, count: c.count }))
+        });
+      }
+
+      built.push({
+        id: 'price',
+        title: 'Rentang Harga',
+        type: 'range',
+        min: 0,
+        max: data.maxPrice ?? 0,
+      });
+
+      // color filter removed — server no longer returns colors
+
+      setFilters(built);
+    } catch (err) {
+      console.error('Error fetching filters', err);
+    }
+  }, []);
+
+  // Fetch products and filters on mount. fetchFilters is stable (useCallback), so it's safe to add to deps.
+  useEffect(() => {
+    fetchProducts();
+    fetchFilters();
+      // Read initial URL search params on client
+      try {
+        const params = new URLSearchParams(window.location.search);
+        setSearchQuery(params.get('search'));
+        setCategoryQuery(params.get('category'));
+      } catch (e) {
+        // ignore on server or if window is not available
+      }
+  }, [fetchFilters]);
 
   useEffect(() => {
     // Filter products based on search query and category
@@ -105,6 +117,8 @@ export default function Home() {
     }
   };
 
+  // color/variant handling removed — filter only supports category and price now
+
   const sortOptions = [
     { value: 'featured', label: 'Unggulan' },
     { value: 'price-low', label: 'Harga: Terendah ke Tertinggi' },
@@ -112,6 +126,10 @@ export default function Home() {
     { value: 'rating', label: 'Rating Pelanggan' },
     { value: 'newest', label: 'Terbaru' },
   ];
+
+  const gridColsClass = viewMode === 'grid'
+    ? (isFilterOpen ? 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5')
+    : 'grid-cols-1';
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark-950 transition-colors duration-300 pt-16">
@@ -138,7 +156,7 @@ export default function Home() {
                   </h2>
                 </div>
                 <p className="text-lg text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto">
-                  Menampilkan hasil untuk: <span className="font-semibold text-primary-600">"{searchQuery}"</span>
+                  Menampilkan hasil untuk: <span className="font-semibold text-primary-600">{"\"" + searchQuery + "\""}</span>
                 </p>
                 {filteredProducts.length === 0 && (
                   <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
@@ -180,7 +198,28 @@ export default function Home() {
             <FilterSidebar
               isOpen={isFilterOpen}
               onClose={() => setIsFilterOpen(false)}
-              filters={mockFilters}
+              filters={filters}
+              onApply={(selectedFilters: Record<string, string[]>, priceRange: { min: number; max: number }) => {
+                // Apply filters to current products
+                let filtered = products.slice();
+
+                // Category filter (options ids are labels)
+                const selectedCategories = selectedFilters['category'] || [];
+                if (selectedCategories.length > 0) {
+                  filtered = filtered.filter(p => p.category && selectedCategories.includes(p.category));
+                }
+
+                // Price filter
+                if (priceRange) {
+                  filtered = filtered.filter(p => {
+                    const price = Number(p.price || 0);
+                    return price >= (priceRange.min || 0) && price <= (priceRange.max || Infinity);
+                  });
+                }
+
+                setFilteredProducts(filtered);
+                setIsFilterOpen(false);
+              }}
             />
 
             {/* Main Content */}
@@ -257,11 +296,7 @@ export default function Home() {
                 whileInView={{ opacity: 1 }}
                 transition={{ duration: 0.6 }}
                 viewport={{ once: true }}
-                className={`grid gap-4 sm:gap-6 ${
-                  viewMode === 'grid'
-                    ? 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-                    : 'grid-cols-1'
-                }`}
+                className={`grid gap-4 sm:gap-6 ${gridColsClass}`}
               >
                 {isLoading ? (
                   // Loading skeletons
@@ -301,8 +336,8 @@ export default function Home() {
                       {searchQuery ? 'Produk tidak ditemukan' : 'Belum ada produk'}
                     </h3>
                     <p className="text-neutral-600 dark:text-neutral-400">
-                      {searchQuery 
-                        ? `Tidak ada produk yang cocok dengan "${searchQuery}". Coba kata kunci lain.`
+                      {searchQuery
+                        ? 'Tidak ada produk yang cocok dengan "' + searchQuery + '". Coba kata kunci lain.'
                         : 'Produk akan muncul disini setelah admin menambahkannya'
                       }
                     </p>

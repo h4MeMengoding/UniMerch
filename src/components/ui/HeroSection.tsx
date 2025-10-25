@@ -5,35 +5,28 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Shirt, Coffee, Backpack, Gift } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+type CategoryShape = {
+  id: number;
+  name: string;
+};
+
 // Banner slider data - lebih banyak untuk demo
 const bannerData = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=300&fit=crop"
-  },
-  {
-    id: 2,
-    image: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&h=300&fit=crop"
-  },
-  {
-    id: 3,
-    image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1200&h=300&fit=crop"
-  },
-  {
-    id: 4,
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=1200&h=300&fit=crop"
+    image: "https://i.ibb.co.com/BVSVFpYB/banner.png"
   }
 ];
 
 export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<CategoryShape[]>([]);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const router = useRouter();
 
   // Handle category click to navigate to products
-  const handleCategoryClick = (category: any) => {
+  const handleCategoryClick = (category: CategoryShape) => {
     // Navigate to products page with category filter
     router.push(`/?category=${encodeURIComponent(category.name)}`);
   };
@@ -138,20 +131,6 @@ export default function HeroSection() {
                   
                   {/* Gradient overlay - lighter on mobile for better visibility */}
                   <div className="absolute inset-0 bg-gradient-to-r from-black/5 via-transparent to-black/5 xs:from-black/10 xs:to-black/10 rounded-lg xs:rounded-xl sm:rounded-2xl" />
-                  
-                  {/* Event Badge Style - Mobile optimized */}
-                  <div className="absolute top-1.5 xs:top-2 sm:top-3 md:top-4 left-1.5 xs:left-2 sm:left-3 md:left-4 bg-white/95 backdrop-blur-sm rounded xs:rounded-md sm:rounded-lg px-1.5 xs:px-2 sm:px-3 py-0.5 xs:py-1 sm:py-1.5 shadow-sm">
-                    <span className="text-[10px] xs:text-xs sm:text-sm font-semibold text-gray-800 whitespace-nowrap">
-                      Event #{index + 1}
-                    </span>
-                  </div>
-                  
-                  {/* Price Tag Style - Mobile optimized */}
-                  <div className="absolute top-1.5 xs:top-2 sm:top-3 md:top-4 right-1.5 xs:right-2 sm:right-3 md:right-4 bg-primary-600 text-white rounded-full px-1.5 xs:px-2 sm:px-3 py-0.5 xs:py-1 sm:py-1.5 shadow-lg">
-                    <span className="text-[10px] xs:text-xs sm:text-sm font-bold whitespace-nowrap">
-                      Promo
-                    </span>
-                  </div>
 
                   {/* Mobile-specific overlay content */}
                   <div className="absolute bottom-2 xs:bottom-3 left-2 xs:left-3 sm:hidden">

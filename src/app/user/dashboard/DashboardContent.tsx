@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTheme } from '@/providers/ThemeProvider';
+import { Sun, Moon } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { Product } from '@/types/product';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -41,6 +43,8 @@ export default function DashboardContent() {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const lastPaymentCheckRef = useRef<number>(0);
+
+  const { theme, toggleTheme } = useTheme();
 
   // Format order code helper function - CONSISTENT with API format
   const formatOrderCode = (orderId: number, createdAt: string) => {
@@ -279,13 +283,25 @@ export default function DashboardContent() {
       <div className="container mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 py-4 sm:py-6 lg:py-8 max-w-7xl">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100">
-            Dashboard Saya
-          </h1>
-          <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400">
-            Kelola pesanan dan profile Anda
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+              Dashboard Saya
+            </h1>
+            <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400">
+              Kelola pesanan dan profile Anda
+            </p>
+          </div>
+
+          <div className="ml-4 flex items-center">
+            <button
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              className="w-10 h-10 rounded-full bg-primary-600 hover:bg-primary-700 text-white flex items-center justify-center transition-colors"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </div>
 

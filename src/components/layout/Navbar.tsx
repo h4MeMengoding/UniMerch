@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Search, ShoppingCart, User, Heart, Sun, Moon, ChevronDown, LogOut, Settings, UserCircle } from 'lucide-react';
+import { Search, ShoppingCart, User, Heart, Sun, Moon, ChevronDown, LogOut, Settings, UserCircle } from 'lucide-react';
 import { useTheme } from '@/providers/ThemeProvider';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // mobile menu removed — mobile navigation is handled by `MobileBottomNav`
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showThemeTooltip, setShowThemeTooltip] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,13 +48,11 @@ export default function Navbar() {
   const handleLogin = () => {
     router.push('/login');
     setIsProfileOpen(false);
-    setIsMenuOpen(false);
   };
 
   const handleLogout = () => {
     logout(); // This will handle redirect automatically
     setIsProfileOpen(false);
-    setIsMenuOpen(false);
   };
 
   const handleProfile = () => {
@@ -64,10 +62,9 @@ export default function Navbar() {
       router.push('/user/dashboard');
     }
     setIsProfileOpen(false);
-    setIsMenuOpen(false);
   };
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  // no-op: mobile menu removed
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -450,129 +447,8 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
 
-            {/* Menu Toggle */}
-            <motion.button
-              onClick={toggleMenu}
-              className="p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              aria-label={isMenuOpen ? "Tutup menu" : "Buka menu"}
-              aria-expanded={isMenuOpen}
-            >
-              {isMenuOpen ? (
-                <X className="w-6 h-6 text-neutral-700 dark:text-neutral-300" />
-              ) : (
-                <Menu className="w-6 h-6 text-neutral-700 dark:text-neutral-300" />
-              )}
-            </motion.button>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="md:hidden border-t border-neutral-200 dark:border-dark-700 bg-white dark:bg-dark-900"
-            >
-              <div className="py-4 space-y-4">
-                {/* Mobile Search Bar */}
-                <div className="px-4">
-                  <form onSubmit={handleSearch} className="w-full">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Cari produk..."
-                        className="w-full pl-10 pr-16 py-3 bg-neutral-50 dark:bg-dark-800 border border-neutral-200 dark:border-dark-700 rounded-full text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      />
-                      <button
-                        type="submit"
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
-                      >
-                        Cari
-                      </button>
-                    </div>
-                  </form>
-                </div>
-
-                {/* Mobile Actions */}
-                <div className="border-t border-neutral-200 dark:border-dark-700 pt-4">
-                  <div className="flex items-center justify-around">
-                    <motion.button
-                      onClick={toggleTheme}
-                      className="flex flex-col items-center space-y-1 p-3 rounded-md hover:bg-neutral-50 dark:hover:bg-dark-800 transition-colors"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      aria-label="Ganti tema"
-                    >
-                      {theme === 'light' ? <Moon className="w-5 h-5 text-neutral-700" /> : <Sun className="w-5 h-5 text-neutral-300" />}
-                      <span className="text-xs text-neutral-600 dark:text-neutral-400">Tema</span>
-                    </motion.button>
-
-                    <motion.button
-                      className="flex flex-col items-center space-y-1 p-3 rounded-md hover:bg-neutral-50 dark:hover:bg-dark-800 transition-colors relative"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      aria-label="Wishlist"
-                    >
-                      <Heart className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
-                      <span className="text-xs text-neutral-600 dark:text-neutral-400">Wishlist</span>
-                      <span className="absolute top-1 right-2 bg-primary-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                        2
-                      </span>
-                    </motion.button>
-
-                    <motion.button
-                      onClick={() => {
-                        if (user) {
-                          handleProfile();
-                        } else {
-                          handleLogin();
-                        }
-                        setIsMenuOpen(false);
-                      }}
-                      className="flex flex-col items-center space-y-1 p-3 rounded-md hover:bg-neutral-50 dark:hover:bg-dark-800 transition-colors relative"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      aria-label={user ? "Profile" : "Login"}
-                    >
-                      {user ? (
-                        <>
-                          <img
-                            src={generateAvatarUrl(user.email || user.name || 'default')}
-                            alt="Profile Avatar"
-                            className="w-8 h-8 rounded-full border-2 border-primary-200 dark:border-primary-600"
-                          />
-                          <span className="text-xs text-neutral-600 dark:text-neutral-400">
-                            {getFirstName(user.name) || 'Profile'}
-                          </span>
-                          {user.role === 'ADMIN' && (
-                            <span className="absolute top-1 right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                              P
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          <div className="w-8 h-8 bg-neutral-200 dark:bg-dark-700 rounded-full flex items-center justify-center">
-                            <User className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
-                          </div>
-                          <span className="text-xs text-neutral-600 dark:text-neutral-400">Login</span>
-                        </>
-                      )}
-                    </motion.button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </nav>
     </header>
   );

@@ -130,21 +130,22 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </h3>
 
-          {/* Rating */}
-          <div className="flex items-center space-x-1 mb-2 sm:mb-3">
-            <div className="flex space-x-0.5">
-              {Array.from({ length: 5 }, (_, i) => (
-                <Star
-                  key={i}
-                  className={`w-3 h-3 ${i < Math.floor(product.rating || 0)
-                      ? 'text-yellow-400 fill-current'
-                      : 'text-neutral-300 dark:text-neutral-600'
-                    }`}
-                />
-              ))}
-            </div>
-            <span className="text-neutral-500 dark:text-neutral-400 text-xs">
-              ({product.reviewCount || 0})
+          {/* Rating compact (star badge | rating | dot | sold count) */}
+          <div className="flex items-center space-x-2 mb-2 sm:mb-3 text-sm">
+            {/* Small filled star (no badge) */}
+            <Star className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5 text-yellow-400" fill="currentColor" stroke="none" />
+
+            {/* Rating value (show one decimal) */}
+            <span className="font-semibold text-neutral-900 dark:text-white">
+              {(product.rating ?? 0).toFixed(1)}
+            </span>
+
+            {/* Separator dot */}
+            <span className="text-neutral-400">•</span>
+
+            {/* Sold / Terjual count */}
+            <span className="text-neutral-500 dark:text-neutral-400">
+              Terjual {product.reviewCount || 0}
             </span>
           </div>
 

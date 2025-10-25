@@ -3,33 +3,42 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { ChevronDown, X, Filter } from 'lucide-react';
+import { useEffect } from 'react';
 
-interface FilterOption {
+export interface FilterOption {
   id: string;
   label: string;
   count: number;
 }
 
-interface FilterSection {
+export interface FilterSection {
   id: string;
   title: string;
-  type: 'checkbox' | 'radio' | 'range' | 'color';
+  type: 'checkbox' | 'radio' | 'range';
   options?: FilterOption[];
   min?: number;
   max?: number;
-  colors?: string[];
 }
 
-interface FilterSidebarProps {
+export interface FilterSidebarProps {
   isOpen: boolean;
   onClose: () => void;
   filters: FilterSection[];
+  onApply?: (selectedFilters: Record<string, string[]>, priceRange: { min: number; max: number }) => void;
 }
 
-export default function FilterSidebar({ isOpen, onClose, filters }: FilterSidebarProps) {
+export default function FilterSidebar({ isOpen, onClose, filters, onApply }: FilterSidebarProps) {
   const [expandedSections, setExpandedSections] = useState<string[]>(['category', 'price']);
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000000 });
+
+  // Initialize price range from provided filters (if any)
+  useEffect(() => {
+    const priceSection = filters.find(f => f.type === 'range');
+    if (priceSection) {
+      setPriceRange({ min: priceSection.min ?? 0, max: priceSection.max ?? 1000000 });
+    }
+  }, [filters]);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev =>
@@ -88,7 +97,7 @@ export default function FilterSidebar({ isOpen, onClose, filters }: FilterSideba
           </button>
           <button
             onClick={onClose}
-            className="lg:hidden p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors"
+            className="p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors"
             aria-label="Tutup filter"
           >
             <X className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
@@ -200,28 +209,7 @@ export default function FilterSidebar({ isOpen, onClose, filters }: FilterSideba
                       </div>
                     )}
 
-                    {/* Color Options */}
-                    {section.type === 'color' && section.colors && (
-                      <div className="grid grid-cols-6 gap-2">
-                        {section.colors.map((color, index) => (
-                          <button
-                            key={index}
-                            className={`w-8 h-8 rounded-full border-2 transition-all ${
-                              selectedFilters[section.id]?.includes(color)
-                                ? 'border-primary-600 dark:border-primary-400 shadow-lg scale-110'
-                                : 'border-neutral-300 dark:border-dark-600 hover:border-neutral-400 dark:hover:border-dark-500'
-                            }`}
-                            style={{ backgroundColor: color }}
-                            onClick={() => handleFilterChange(
-                              section.id, 
-                              color, 
-                              !selectedFilters[section.id]?.includes(color)
-                            )}
-                            aria-label={`Filter berdasarkan warna ${color}`}
-                          />
-                        ))}
-                      </div>
-                    )}
+                    {/* (color filter removed) */}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -233,6 +221,10 @@ export default function FilterSidebar({ isOpen, onClose, filters }: FilterSideba
       {/* Apply Button */}
       <div className="p-6 border-t border-neutral-200 dark:border-dark-700">
         <motion.button
+          onClick={() => {
+            onApply?.(selectedFilters, priceRange);
+            onClose();
+          }}
           className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 rounded-md font-medium transition-colors"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -245,33 +237,28 @@ export default function FilterSidebar({ isOpen, onClose, filters }: FilterSideba
 
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* Overlay for both mobile and desktop when sidebar is open */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/50 z-40"
             onClick={onClose}
           />
         )}
       </AnimatePresence>
 
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:block w-80 bg-white dark:bg-dark-900 border-r border-neutral-200 dark:border-dark-700 h-full">
-        {sidebarContent}
-      </div>
-
-      {/* Mobile Sidebar */}
+      {/* Slide-in Sidebar (used for both mobile and desktop) */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
-            transition={{ type: 'tween', duration: 0.3 }}
-            className="lg:hidden fixed left-0 top-0 w-80 bg-white dark:bg-dark-900 h-full z-50 shadow-xl"
+            transition={{ type: 'tween', duration: 0.28 }}
+            className="fixed left-0 top-0 w-80 bg-white dark:bg-dark-900 h-full z-50 shadow-xl"
           >
             {sidebarContent}
           </motion.div>

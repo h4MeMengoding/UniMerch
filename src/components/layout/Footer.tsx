@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ArrowUp } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
@@ -10,6 +10,12 @@ export default function Footer() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -227,18 +233,37 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Scroll to Top Button */}
-      <motion.button
-        onClick={scrollToTop}
-        className="fixed bottom-8 right-8 w-12 h-12 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-50"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        whileHover={{ scale: 1.1, y: -2 }}
-        whileTap={{ scale: 0.9 }}
-        aria-label="Gulir ke atas"
-      >
-        <ArrowUp className="w-5 h-5" />
-      </motion.button>
+      {/* Render static buttons during SSR/initial hydration to avoid mismatches,
+          then replace with motion buttons after mount for animation. */}
+      {!mounted ? (
+        <>
+          <button
+            onClick={scrollToTop}
+            className="fixed right-8 w-12 h-12 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-60 bottom-[96px] md:bottom-8"
+            aria-label="Gulir ke atas"
+          >
+            <ArrowUp className="w-5 h-5" />
+          </button>
+
+          {/* theme button removed (moved to user dashboard) */}
+        </>
+      ) : (
+        <>
+          <motion.button
+            onClick={scrollToTop}
+            className="fixed right-8 w-12 h-12 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-60 bottom-[96px] md:bottom-8"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            whileHover={{ scale: 1.1, y: -2 }}
+            whileTap={{ scale: 0.9 }}
+            aria-label="Gulir ke atas"
+          >
+            <ArrowUp className="w-5 h-5" />
+          </motion.button>
+
+          {/* theme button removed (moved to user dashboard) */}
+        </>
+      )}
     </footer>
   );
 }

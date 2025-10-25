@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import ThemeAwareToastContainer from "@/components/ui/ThemeAwareToastContainer";
 import 'react-toastify/dist/ReactToastify.css';
+import MobileBottomNav from '@/components/layout/MobileBottomNav';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -42,6 +43,7 @@ export default function RootLayout({
                 {children}
               </main>
               <ConditionalFooter />
+              <MobileBottomNav />
             </div>
             <ThemeAwareToastContainer />
           </AuthProvider>

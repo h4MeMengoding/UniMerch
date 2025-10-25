@@ -21,8 +21,16 @@ body {
   line-height: 1.6;
 }
 
-/* Focus styles for accessibility */
-*:focus {
+/* Focus styles for accessibility
+   - Hide the default (blue) focus outline on mouse/click focus
+     while preserving visible focus for keyboard users using :focus-visible. */
+*:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Visible focus for keyboard navigation */
+*:focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
