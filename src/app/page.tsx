@@ -3,7 +3,6 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
 import { Grid, List, SlidersHorizontal, Search } from 'lucide-react';
 import HeroSection from '@/components/ui/HeroSection';
 import ProductCard from '@/components/ui/ProductCard';
@@ -133,21 +132,27 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark-950 transition-colors duration-300 pt-16">
-      {/* Hero Section - Hide when searching or filtering */}
-      {!searchQuery && !categoryQuery && <HeroSection />}
+      {/* Hero Section - Hide when searching or filtering. Show skeleton while loading */}
+      {!searchQuery && !categoryQuery && (isLoading ? (
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="relative h-[160px] xs:h-[180px] sm:h-[220px] md:h-[250px] lg:h-[280px] overflow-hidden rounded-lg xs:rounded-xl sm:rounded-2xl bg-neutral-200 dark:bg-dark-700 animate-pulse" />
+        </div>
+      ) : (
+        <HeroSection />
+      ))}
 
       {/* Product Listing Section */}
       <section className={(searchQuery || categoryQuery) ? "py-12 pt-24" : "py-6 sm:py-8 md:py-12"}>
         <div className="container mx-auto px-4 max-w-7xl">
-          {/* Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            {searchQuery ? (
+      {/* Section Header */}
+      <div className="text-center mb-12">
+            {isLoading ? (
+              // Header skeleton while loading
+              <>
+                <div className="h-8 w-40 bg-neutral-200 dark:bg-dark-700 rounded mx-auto mb-4 animate-pulse" />
+                <div className="h-4 w-3/4 bg-neutral-200 dark:bg-dark-700 rounded mx-auto animate-pulse" />
+              </>
+            ) : searchQuery ? (
               <>
                 <div className="flex items-center justify-center mb-4">
                   <Search className="w-8 h-8 text-primary-600 mr-2" />
@@ -191,7 +196,7 @@ export default function Home() {
                 </p>
               </>
             )}
-          </motion.div>
+          </div>
 
           <div className="flex">
             {/* Filter Sidebar */}
@@ -291,13 +296,7 @@ export default function Home() {
               </div>
 
               {/* Product Grid */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.6 }}
-                viewport={{ once: true }}
-                className={`grid gap-4 sm:gap-6 ${gridColsClass}`}
-              >
+              <div className={`grid gap-4 sm:gap-6 ${gridColsClass}`}>
                 {isLoading ? (
                   // Loading skeletons
                   Array.from({ length: 8 }).map((_, index) => (
@@ -311,16 +310,10 @@ export default function Home() {
                     </div>
                   ))
                 ) : filteredProducts.length > 0 ? (
-                  filteredProducts.map((product: Product, index: number) => (
-                    <motion.div
-                      key={product.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                    >
-                      <ProductCard product={product} />
-                    </motion.div>
+                  filteredProducts.map((product: Product) => (
+                    <div key={product.id}>
+                      <ProductCard product={product} disableAnimations />
+                    </div>
                   ))
                 ) : (
                   // Empty state
@@ -343,24 +336,14 @@ export default function Home() {
                     </p>
                   </div>
                 )}
-              </motion.div>
+              </div>
 
               {/* Load More Button */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="text-center mt-12"
-              >
-                <motion.button
-                  className="px-8 py-3 border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white rounded-lg font-medium transition-colors"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
+              <div className="text-center mt-12">
+                <button className="px-8 py-3 border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white rounded-lg font-medium transition-colors">
                   Muat Lebih Banyak Produk
-                </motion.button>
-              </motion.div>
+                </button>
+              </div>
             </div>
           </div>
         </div>
