@@ -105,7 +105,14 @@ export default function HeroSection() {
       {/* Banner Slider Section - Clean Integration */}
       <section className="relative pt-6 sm:pt-8 md:pt-10 lg:pt-12">
         <div className="container mx-auto px-4 max-w-7xl">
-          <div className="relative h-[160px] xs:h-[180px] sm:h-[220px] md:h-[250px] lg:h-[280px] overflow-hidden rounded-lg xs:rounded-xl sm:rounded-2xl">
+          {/*
+            Keep desktop sizes as-is (md/lg) but make mobile height follow the same
+            visual ratio by using viewport width. Using 280px @ lg and an assumed
+            container width (~1280px) gives ratio = 280 / 1280 = 0.21875.
+            So mobile height = calc(100vw * 0.21875). This avoids changing desktop
+            dimensions while preventing cropping on narrow screens.
+          */}
+          <div className="relative h-[calc(100vw*0.21875)] sm:h-[220px] md:h-[250px] lg:h-[280px] overflow-hidden rounded-lg xs:rounded-xl sm:rounded-2xl">
             {/* Slider Container */}
             <div 
               className="relative w-full h-full"
@@ -131,15 +138,6 @@ export default function HeroSection() {
                   
                   {/* Gradient overlay - lighter on mobile for better visibility */}
                   <div className="absolute inset-0 bg-gradient-to-r from-black/5 via-transparent to-black/5 xs:from-black/10 xs:to-black/10 rounded-lg xs:rounded-xl sm:rounded-2xl" />
-
-                  {/* Mobile-specific overlay content */}
-                  <div className="absolute bottom-2 xs:bottom-3 left-2 xs:left-3 sm:hidden">
-                    <div className="bg-black/60 backdrop-blur-sm rounded-md px-2 py-1">
-                      <span className="text-white text-xs font-medium">
-                        {index + 1} / {bannerData.length}
-                      </span>
-                    </div>
-                  </div>
                 </div>
               ))}
             </motion.div>

@@ -2,8 +2,8 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Grid, List, SlidersHorizontal, Search } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Grid, List, SlidersHorizontal, Search, ChevronRight } from 'lucide-react';
 import HeroSection from '@/components/ui/HeroSection';
 import ProductCard from '@/components/ui/ProductCard';
 import FilterSidebar from '@/components/ui/FilterSidebar';
@@ -75,6 +75,16 @@ export default function Home() {
       }
   }, [fetchFilters]);
 
+  // Discounted products for promo scroller
+  const discounted = products.filter(p => (p.originalPrice && p.originalPrice > p.price) || p.isOnSale);
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const scrollScroller = (dir: number) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const amount = Math.max(el.clientWidth * 0.7, 160);
+    el.scrollBy({ left: dir * amount, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     // Filter products based on search query and category
     let filtered = products;
@@ -145,7 +155,80 @@ export default function Home() {
       <section className={(searchQuery || categoryQuery) ? "py-12 pt-24" : "py-6 sm:py-8 md:py-12"}>
         <div className="container mx-auto px-4 max-w-7xl">
       {/* Section Header */}
-      <div className="text-center mb-12">
+          {/* Promo discounted products section (matches UI in attachment) */}
+          {!isLoading && discounted && discounted.length > 0 && (
+            <div className="mb-8">
+              <div className="bg-gradient-to-r from-blue-50 to-white dark:from-black/5 rounded-2xl p-4 sm:p-6 overflow-hidden relative shadow-sm">
+                <div className="container mx-auto px-4 max-w-7xl">
+                  <div className="flex items-center gap-4 relative">
+                    {/* Left promo panel */}
+                    <div className="hidden sm:flex flex-col justify-between bg-white/90 dark:bg-dark-800/60 rounded-lg p-4 w-64 shadow-md">
+                      <div>
+                        <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Member baru? Ini promomu!</h3>
+                        <p className="text-3xl font-extrabold text-primary-600 mt-2">Cashback<br />99%</p>
+                        <p className="text-xs text-neutral-500 mt-2">PELANGGANBARU-... </p>
+                      </div>
+                      <div className="mt-3">
+                        <button
+                          onClick={() => { navigator.clipboard?.writeText('PELANGGANBARU-99'); }}
+                          className="bg-white border border-neutral-200 text-primary-600 px-3 py-1 rounded-full text-sm shadow-sm"
+                        >
+                          Salin
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Horizontal product scroller */}
+                    <div className="flex-1">
+                      <div ref={scrollerRef} className="overflow-x-auto no-scrollbar scroll-smooth px-1">
+                        <div className="flex items-start space-x-4 py-1">
+                            {discounted.map((p) => (
+                            <div key={p.id} className="w-40 min-w-[160px] sm:w-44 sm:min-w-[176px] bg-white dark:bg-dark-800 rounded-xl border border-neutral-200 dark:border-dark-700 overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200 transform hover:-translate-y-0.5">
+                              <div className="relative aspect-square bg-neutral-100 dark:bg-dark-700">
+                                <img src={p.image} alt={p.name} className="w-full h-full object-contain p-2" />
+                                {((p.originalPrice && p.originalPrice > p.price) || p.isOnSale) && (
+                                  <span className="absolute -top-2 left-2 bg-red-500 text-white text-[11px] font-semibold px-2 py-0.5 rounded">-{Math.round(((p.originalPrice ?? p.price) - p.price) / (p.originalPrice ?? p.price) * 100)}%</span>
+                                )}
+                              </div>
+                              <div className="p-2">
+                                <div className="text-sm font-medium text-neutral-900 dark:text-white truncate">{p.name}</div>
+                                <div className="text-xs text-neutral-500 line-through">{p.originalPrice ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p.originalPrice) : ''}</div>
+                                <div className="text-sm font-bold text-neutral-900 dark:text-white">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p.price)}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Left chevron button to scroll */}
+                    <button
+                      onClick={() => scrollScroller(-1)}
+                      aria-label="Scroll promo left"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 z-30 bg-white/95 hover:bg-white text-primary-600 p-2 rounded-full shadow-md hidden md:flex items-center justify-center"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                    </button>
+
+                    {/* Right chevron button to scroll */}
+                    <button
+                      onClick={() => scrollScroller(1)}
+                      aria-label="Scroll promo right"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 z-30 bg-white/95 hover:bg-white text-primary-600 p-2 rounded-full shadow-md hidden md:flex items-center justify-center"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+
+                    {/* Left/Right fade overlays to hint scrollable content */}
+                    <div className="pointer-events-none absolute left-0 top-0 h-full w-14 bg-gradient-to-r from-white/80 to-transparent dark:from-black/40 hidden md:block rounded-l-2xl" />
+                    <div className="pointer-events-none absolute right-0 top-0 h-full w-14 bg-gradient-to-l from-white/80 to-transparent dark:from-black/40 hidden md:block rounded-r-2xl" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="text-center mb-12">
             {isLoading ? (
               // Header skeleton while loading
               <>
