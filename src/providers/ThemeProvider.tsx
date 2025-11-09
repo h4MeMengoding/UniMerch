@@ -13,8 +13,10 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Check for saved theme preference or default to 'light'
     const savedTheme = localStorage.getItem('theme') as Theme;
     const initialTheme = savedTheme || 'light';
@@ -43,6 +45,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Always provide context, but only apply theme effects after mount
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}

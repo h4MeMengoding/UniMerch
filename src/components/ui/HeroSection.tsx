@@ -103,7 +103,7 @@ export default function HeroSection() {
   return (
     <div className="space-y-0">
       {/* Banner Slider Section - Clean Integration */}
-      <section className="relative pt-6 sm:pt-8 md:pt-10 lg:pt-12">
+      <section className="relative pt-6 sm:pt-8 md:pt-10 lg:pt-12 pb-0">
         <div className="container mx-auto px-4 max-w-7xl">
           {/*
             Keep desktop sizes as-is (md/lg) but make mobile height follow the same
@@ -176,42 +176,6 @@ export default function HeroSection() {
           </div>
 
         </div>
-        </div>
-      </section>
-
-      {/* Categories Section - Database Only */}
-      <section className="py-8 sm:py-10 md:py-12">
-        <div className="container mx-auto px-4 max-w-7xl">
-          {/* Categories Grid - Centered with Click */}
-          {Array.isArray(categories) && categories.length > 0 ? (
-            <div className="flex justify-center">
-              <div className="flex overflow-x-auto scrollbar-hide space-x-3 sm:space-x-4 pb-2 max-w-full">
-                {categories.map((category) => (
-                  <div
-                    key={category.id}
-                    onClick={() => handleCategoryClick(category)}
-                    className="flex-shrink-0 cursor-pointer"
-                  >
-                    <div className="flex items-center space-x-2 bg-white dark:bg-dark-800 rounded-full px-3 py-2 shadow-sm border border-gray-200 dark:border-dark-600">
-                      {/* Consistent Icon */}
-                      <span className="text-lg">🏷️</span>
-                      
-                      {/* Category Name */}
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                        {category.name}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                Memuat kategori...
-              </div>
-            </div>
-          )}
         </div>
       </section>
     </div>

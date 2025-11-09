@@ -22,6 +22,12 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  // Set mounted state
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // no-op: color/variant fetching removed
@@ -61,18 +67,23 @@ export default function Home() {
     }
   }, []);
 
+  // Read URL search params only on client after mount
+  useEffect(() => {
+    if (!mounted) return;
+    
+    try {
+      const params = new URLSearchParams(window.location.search);
+      setSearchQuery(params.get('search'));
+      setCategoryQuery(params.get('category'));
+    } catch (e) {
+      // ignore if window is not available
+    }
+  }, [mounted]);
+
   // Fetch products and filters on mount. fetchFilters is stable (useCallback), so it's safe to add to deps.
   useEffect(() => {
     fetchProducts();
     fetchFilters();
-      // Read initial URL search params on client
-      try {
-        const params = new URLSearchParams(window.location.search);
-        setSearchQuery(params.get('search'));
-        setCategoryQuery(params.get('category'));
-      } catch (e) {
-        // ignore on server or if window is not available
-      }
   }, [fetchFilters]);
 
   // Discounted products for promo scroller
@@ -144,84 +155,299 @@ export default function Home() {
     <div className="min-h-screen bg-white dark:bg-dark-950 transition-colors duration-300 pt-16">
       {/* Hero Section - Hide when searching or filtering. Show skeleton while loading */}
       {!searchQuery && !categoryQuery && (isLoading ? (
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="relative h-[160px] xs:h-[180px] sm:h-[220px] md:h-[250px] lg:h-[280px] overflow-hidden rounded-lg xs:rounded-xl sm:rounded-2xl bg-neutral-200 dark:bg-dark-700 animate-pulse" />
+        <div className="pt-6 sm:pt-8 md:pt-10 lg:pt-12 pb-0">
+          <div className="container mx-auto px-4 max-w-7xl">
+            {/* Banner Skeleton */}
+            <div className="relative h-[calc(100vw*0.21875)] sm:h-[220px] md:h-[250px] lg:h-[280px] overflow-hidden rounded-lg xs:rounded-xl sm:rounded-2xl bg-neutral-200 dark:bg-dark-700 animate-pulse">
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer"></div>
+            </div>
+          </div>
         </div>
       ) : (
         <HeroSection />
       ))}
 
       {/* Product Listing Section */}
-      <section className={(searchQuery || categoryQuery) ? "py-12 pt-24" : "py-6 sm:py-8 md:py-12"}>
+      <section className={(searchQuery || categoryQuery) ? "py-12 pt-24" : "py-6 sm:py-8"}>
         <div className="container mx-auto px-4 max-w-7xl">
       {/* Section Header */}
-          {/* Promo discounted products section (matches UI in attachment) */}
-          {!isLoading && discounted && discounted.length > 0 && (
-            <div className="mb-8">
-              <div className="bg-gradient-to-r from-blue-50 to-white dark:from-black/5 rounded-2xl p-4 sm:p-6 overflow-hidden relative shadow-sm">
-                <div className="container mx-auto px-4 max-w-7xl">
-                  <div className="flex items-center gap-4 relative">
-                    {/* Left promo panel */}
-                    <div className="hidden sm:flex flex-col justify-between bg-white/90 dark:bg-dark-800/60 rounded-lg p-4 w-64 shadow-md">
-                      <div>
-                        <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Member baru? Ini promomu!</h3>
-                        <p className="text-3xl font-extrabold text-primary-600 mt-2">Cashback<br />99%</p>
-                        <p className="text-xs text-neutral-500 mt-2">PELANGGANBARU-... </p>
+          {/* Promo Section Skeleton - Show while loading */}
+          {isLoading && (
+            <div className="mb-6 sm:mb-8">
+              {/* Mobile Skeleton */}
+              <div className="sm:hidden bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-100 dark:from-dark-800 dark:via-dark-900 dark:to-dark-800 rounded-xl overflow-hidden shadow-sm border border-neutral-200 dark:border-dark-700 animate-pulse">
+                {/* Header Skeleton */}
+                <div className="bg-neutral-300 dark:bg-dark-700 px-4 py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="w-20 h-4 bg-neutral-400 dark:bg-dark-600 rounded-full mb-2"></div>
+                      <div className="w-32 h-5 bg-neutral-400 dark:bg-dark-600 rounded mb-1"></div>
+                      <div className="w-24 h-6 bg-neutral-400 dark:bg-dark-600 rounded"></div>
+                    </div>
+                    <div className="w-24 h-20 bg-white dark:bg-dark-800 rounded-lg"></div>
+                  </div>
+                </div>
+                {/* Products Skeleton */}
+                <div className="px-4 pb-4">
+                  <div className="w-32 h-5 bg-neutral-200 dark:bg-dark-700 rounded mb-3 mt-3"></div>
+                  <div className="flex gap-3 overflow-hidden">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="w-32 min-w-[128px] bg-white dark:bg-dark-800 rounded-lg border border-neutral-200 dark:border-dark-700 overflow-hidden">
+                        <div className="aspect-square bg-neutral-200 dark:bg-dark-700"></div>
+                        <div className="p-2">
+                          <div className="h-3 bg-neutral-200 dark:bg-dark-700 rounded mb-1"></div>
+                          <div className="h-3 bg-neutral-200 dark:bg-dark-700 rounded w-3/4 mb-1"></div>
+                          <div className="h-4 bg-neutral-200 dark:bg-dark-700 rounded w-1/2"></div>
+                        </div>
                       </div>
-                      <div className="mt-3">
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop Skeleton */}
+              <div className="hidden sm:block bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-100 dark:from-dark-800 dark:via-dark-900 dark:to-dark-800 rounded-2xl lg:rounded-3xl overflow-hidden shadow-sm border border-neutral-200 dark:border-dark-700 animate-pulse">
+                <div className="p-4 sm:p-5 lg:p-6">
+                  <div className="flex items-center gap-4 lg:gap-6">
+                    {/* Left Promo Panel Skeleton */}
+                    <div className="flex-shrink-0 bg-neutral-300 dark:bg-dark-700 rounded-xl lg:rounded-2xl p-4 lg:p-6 w-64 lg:w-72 h-64">
+                      <div className="w-24 h-6 bg-neutral-400 dark:bg-dark-600 rounded-full mb-3"></div>
+                      <div className="w-40 h-6 bg-neutral-400 dark:bg-dark-600 rounded mb-2"></div>
+                      <div className="w-32 h-8 bg-neutral-400 dark:bg-dark-600 rounded mb-4"></div>
+                      <div className="w-full h-16 bg-white dark:bg-dark-800 rounded-xl mb-3"></div>
+                      <div className="w-3/4 h-3 bg-neutral-400 dark:bg-dark-600 rounded"></div>
+                    </div>
+
+                    {/* Products Skeleton */}
+                    <div className="flex-1">
+                      <div className="w-40 h-6 bg-neutral-200 dark:bg-dark-700 rounded mb-4"></div>
+                      <div className="flex gap-3 lg:gap-4 overflow-hidden">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div key={i} className="w-40 min-w-[160px] lg:w-44 lg:min-w-[176px] bg-white dark:bg-dark-800 rounded-lg lg:rounded-xl border border-neutral-200 dark:border-dark-700 overflow-hidden">
+                            <div className="aspect-square bg-neutral-200 dark:bg-dark-700"></div>
+                            <div className="p-2.5 lg:p-3">
+                              <div className="h-4 bg-neutral-200 dark:bg-dark-700 rounded mb-2"></div>
+                              <div className="h-3 bg-neutral-200 dark:bg-dark-700 rounded w-2/3 mb-1"></div>
+                              <div className="h-5 bg-neutral-200 dark:bg-dark-700 rounded w-1/2"></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Promo discounted products section - Modern & Responsive Design */}
+          {!isLoading && discounted && discounted.length > 0 && (
+            <div className="mb-6 sm:mb-8">
+              {/* Mobile-First Layout */}
+              <div className="bg-gradient-to-br from-primary-50 via-white to-primary-50 dark:from-dark-900 dark:via-dark-950 dark:to-dark-900 rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden shadow-sm border border-primary-100 dark:border-dark-800">
+                
+                {/* Promo Header - Mobile */}
+                <div className="sm:hidden bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-700 dark:to-primary-800 px-4 py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full mb-1.5">
+                        <span className="text-sm">🎉</span>
+                        <span className="text-[10px] font-semibold text-white">Promo Spesial</span>
+                      </div>
+                      <h3 className="text-sm font-bold text-white leading-tight mb-1">
+                        Member baru?<br />Pake kode ini!
+                      </h3>
+                      <div className="flex items-baseline gap-1.5">
+                        <p className="text-2xl font-extrabold text-white">10%</p>
+                        <p className="text-xs font-semibold text-white/90">Diskon</p>
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0 bg-white rounded-lg px-3 py-2 shadow-md min-w-[100px]">
+                      <p className="text-[9px] text-neutral-500 font-medium mb-1 text-center">Kode Promo</p>
+                      <div className="flex flex-col items-center gap-1.5">
+                        <p className="text-xs font-mono font-bold text-primary-700">UNIMERCH</p>
                         <button
-                          onClick={() => { navigator.clipboard?.writeText('PELANGGANBARU-99'); }}
-                          className="bg-white border border-neutral-200 text-primary-600 px-3 py-1 rounded-full text-sm shadow-sm"
+                          onClick={() => { 
+                            navigator.clipboard?.writeText('UNIMERCH');
+                            // Simple toast notification
+                            const toast = document.createElement('div');
+                            toast.className = 'fixed top-20 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium z-50 animate-fade-in';
+                            toast.textContent = '✓ Kode disalin!';
+                            document.body.appendChild(toast);
+                            setTimeout(() => toast.remove(), 2000);
+                          }}
+                          className="bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white px-2.5 py-1 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1 shadow-sm w-full justify-center"
+                          aria-label="Salin kode promo"
                         >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
                           Salin
                         </button>
                       </div>
                     </div>
+                  </div>
+                  <p className="text-[10px] text-white/70 mt-2">
+                    *Berlaku untuk pembelian pertama
+                  </p>
+                </div>
+
+                {/* Desktop Layout */}
+                <div className="hidden sm:block p-4 sm:p-5 lg:p-6">
+                  <div className="flex items-center gap-4 lg:gap-6 relative">
+                    {/* Left promo panel - Desktop */}
+                    <div className="flex-shrink-0 bg-gradient-to-br from-primary-600 to-primary-700 dark:from-primary-700 dark:to-primary-800 rounded-xl lg:rounded-2xl p-4 lg:p-6 w-64 lg:w-72 shadow-lg relative overflow-hidden">
+                      {/* Background decoration */}
+                      <div className="absolute top-0 right-0 w-24 h-24 lg:w-32 lg:h-32 bg-white/10 rounded-full -mr-12 lg:-mr-16 -mt-12 lg:-mt-16"></div>
+                      <div className="absolute bottom-0 left-0 w-20 h-20 lg:w-24 lg:h-24 bg-white/10 rounded-full -ml-10 lg:-ml-12 -mb-10 lg:-mb-12"></div>
+                      
+                      <div className="relative z-10">
+                        <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full mb-2 lg:mb-3">
+                          <span className="text-base lg:text-lg">🎉</span>
+                          <span className="text-[10px] lg:text-xs font-semibold text-white">Promo Eksklusif</span>
+                        </div>
+                        
+                        <h3 className="text-lg lg:text-xl font-bold text-white mb-1.5 lg:mb-2 leading-tight">
+                          Member baru?<br />Pake kode ini!
+                        </h3>
+                        
+                        <div className="flex items-baseline gap-2 mb-3 lg:mb-4">
+                          <p className="text-3xl lg:text-4xl font-extrabold text-white">10%</p>
+                          <p className="text-xs lg:text-sm font-semibold text-white/90">Diskon</p>
+                        </div>
+                        
+                        <div className="bg-white/95 dark:bg-white rounded-lg lg:rounded-xl p-2.5 lg:p-3 mb-2.5 lg:mb-3">
+                          <p className="text-[9px] lg:text-[10px] text-neutral-600 dark:text-neutral-700 font-medium mb-1">Kode Promo</p>
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-xs lg:text-sm font-mono font-bold text-primary-700">UNIMERCH</p>
+                            <button
+                              onClick={() => { 
+                                navigator.clipboard?.writeText('UNIMERCH');
+                                // Simple toast notification
+                                const toast = document.createElement('div');
+                                toast.className = 'fixed top-20 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium z-50 animate-fade-in';
+                                toast.textContent = '✓ Kode berhasil disalin!';
+                                document.body.appendChild(toast);
+                                setTimeout(() => toast.remove(), 2000);
+                              }}
+                              className="bg-primary-100 hover:bg-primary-200 active:bg-primary-300 text-primary-700 px-2 py-1 rounded-lg text-[10px] lg:text-xs font-semibold transition-colors flex items-center gap-1 flex-shrink-0"
+                            >
+                              <svg className="w-3 lg:w-3.5 h-3 lg:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              </svg>
+                              Salin
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <p className="text-[10px] lg:text-xs text-white/70">
+                          *Berlaku untuk pembelian pertama
+                        </p>
+                      </div>
+                    </div>
 
                     {/* Horizontal product scroller */}
-                    <div className="flex-1">
-                      <div ref={scrollerRef} className="overflow-x-auto no-scrollbar scroll-smooth px-1">
-                        <div className="flex items-start space-x-4 py-1">
-                            {discounted.map((p) => (
-                            <div key={p.id} className="w-40 min-w-[160px] sm:w-44 sm:min-w-[176px] bg-white dark:bg-dark-800 rounded-xl border border-neutral-200 dark:border-dark-700 overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200 transform hover:-translate-y-0.5">
-                              <div className="relative aspect-square bg-neutral-100 dark:bg-dark-700">
-                                <img src={p.image} alt={p.name} className="w-full h-full object-contain p-2" />
+                    <div className="flex-1 relative group">
+                      <h4 className="text-base lg:text-lg font-bold text-neutral-900 dark:text-white mb-3 lg:mb-4 flex items-center gap-2">
+                        <span>🔥</span>
+                        Produk Diskon
+                      </h4>
+                      
+                      <div ref={scrollerRef} className="overflow-x-auto no-scrollbar scroll-smooth">
+                        <div className="flex items-start gap-3 lg:gap-4 pb-2">
+                          {discounted.map((p) => (
+                            <div key={p.id} className="w-40 min-w-[160px] lg:w-44 lg:min-w-[176px] bg-white dark:bg-dark-800 rounded-lg lg:rounded-xl border border-neutral-200 dark:border-dark-700 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-1 cursor-pointer group/card">
+                              <div className="relative aspect-square bg-neutral-50 dark:bg-dark-700 overflow-hidden">
+                                <img src={p.image} alt={p.name} className="w-full h-full object-contain p-2.5 lg:p-3 group-hover/card:scale-105 transition-transform duration-200" />
                                 {((p.originalPrice && p.originalPrice > p.price) || p.isOnSale) && (
-                                  <span className="absolute -top-2 left-2 bg-red-500 text-white text-[11px] font-semibold px-2 py-0.5 rounded">-{Math.round(((p.originalPrice ?? p.price) - p.price) / (p.originalPrice ?? p.price) * 100)}%</span>
+                                  <span className="absolute top-1.5 lg:top-2 left-1.5 lg:left-2 bg-red-500 text-white text-[10px] lg:text-xs font-bold px-1.5 lg:px-2 py-0.5 lg:py-1 rounded-md lg:rounded-lg shadow-md">
+                                    -{Math.round(((p.originalPrice ?? p.price) - p.price) / (p.originalPrice ?? p.price) * 100)}%
+                                  </span>
                                 )}
                               </div>
-                              <div className="p-2">
-                                <div className="text-sm font-medium text-neutral-900 dark:text-white truncate">{p.name}</div>
-                                <div className="text-xs text-neutral-500 line-through">{p.originalPrice ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p.originalPrice) : ''}</div>
-                                <div className="text-sm font-bold text-neutral-900 dark:text-white">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p.price)}</div>
+                              <div className="p-2.5 lg:p-3">
+                                <div className="text-xs lg:text-sm font-semibold text-neutral-900 dark:text-white truncate mb-1">{p.name}</div>
+                                {p.originalPrice && (
+                                  <div className="text-[10px] lg:text-xs text-neutral-500 line-through mb-0.5">
+                                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p.originalPrice)}
+                                  </div>
+                                )}
+                                <div className="text-sm lg:text-base font-bold text-primary-600 dark:text-primary-400">
+                                  {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p.price)}
+                                </div>
                               </div>
                             </div>
                           ))}
                         </div>
                       </div>
+
+                      {/* Navigation buttons */}
+                      <button
+                        onClick={() => scrollScroller(-1)}
+                        aria-label="Scroll promo left"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-white dark:bg-dark-800 hover:bg-neutral-50 dark:hover:bg-dark-700 text-primary-600 dark:text-primary-400 p-2 rounded-full shadow-lg border border-neutral-200 dark:border-dark-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <svg className="w-4 lg:w-5 h-4 lg:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      <button
+                        onClick={() => scrollScroller(1)}
+                        aria-label="Scroll promo right"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-white dark:bg-dark-800 hover:bg-neutral-50 dark:hover:bg-dark-700 text-primary-600 dark:text-primary-400 p-2 rounded-full shadow-lg border border-neutral-200 dark:border-dark-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <ChevronRight className="w-4 lg:w-5 h-4 lg:h-5" />
+                      </button>
                     </div>
+                  </div>
+                </div>
 
-                    {/* Left chevron button to scroll */}
-                    <button
-                      onClick={() => scrollScroller(-1)}
-                      aria-label="Scroll promo left"
-                      className="absolute left-3 top-1/2 -translate-y-1/2 z-30 bg-white/95 hover:bg-white text-primary-600 p-2 rounded-full shadow-md hidden md:flex items-center justify-center"
-                    >
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-                    </button>
-
-                    {/* Right chevron button to scroll */}
-                    <button
-                      onClick={() => scrollScroller(1)}
-                      aria-label="Scroll promo right"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 z-30 bg-white/95 hover:bg-white text-primary-600 p-2 rounded-full shadow-md hidden md:flex items-center justify-center"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-
-                    {/* Left/Right fade overlays to hint scrollable content */}
-                    <div className="pointer-events-none absolute left-0 top-0 h-full w-14 bg-gradient-to-r from-white/80 to-transparent dark:from-black/40 hidden md:block rounded-l-2xl" />
-                    <div className="pointer-events-none absolute right-0 top-0 h-full w-14 bg-gradient-to-l from-white/80 to-transparent dark:from-black/40 hidden md:block rounded-r-2xl" />
+                {/* Mobile Product Scroller */}
+                <div className="sm:hidden px-4 pb-4">
+                  <h4 className="text-sm font-bold text-neutral-900 dark:text-white mb-3 flex items-center gap-1.5">
+                    <span className="text-base">🔥</span>
+                    <span>Produk Diskon</span>
+                  </h4>
+                  
+                  <div className="overflow-x-auto no-scrollbar scroll-smooth -mx-4 px-4">
+                    <div className="flex items-start gap-3 pb-1">
+                      {discounted.map((p) => (
+                        <div 
+                          key={p.id} 
+                          className="w-32 min-w-[128px] bg-white dark:bg-dark-800 rounded-lg border border-neutral-200 dark:border-dark-700 overflow-hidden shadow-sm active:scale-[0.97] transition-transform cursor-pointer"
+                          onClick={() => window.location.href = `/product/${p.id}`}
+                        >
+                          <div className="relative aspect-square bg-neutral-50 dark:bg-dark-700">
+                            <img src={p.image} alt={p.name} className="w-full h-full object-contain p-2" />
+                            {((p.originalPrice && p.originalPrice > p.price) || p.isOnSale) && (
+                              <span className="absolute top-1.5 left-1.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-md">
+                                -{Math.round(((p.originalPrice ?? p.price) - p.price) / (p.originalPrice ?? p.price) * 100)}%
+                              </span>
+                            )}
+                          </div>
+                          <div className="p-2">
+                            <div className="text-[11px] font-semibold text-neutral-900 dark:text-white line-clamp-2 mb-1 h-8">{p.name}</div>
+                            {p.originalPrice && (
+                              <div className="text-[9px] text-neutral-500 line-through mb-0.5">
+                                {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p.originalPrice)}
+                              </div>
+                            )}
+                            <div className="text-xs font-bold text-primary-600 dark:text-primary-400">
+                              {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(p.price)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Scroll indicator dots - Mobile only */}
+                  <div className="flex justify-center gap-1 mt-3">
+                    {[...Array(Math.ceil(discounted.length / 3))].map((_, i) => (
+                      <div key={i} className="w-1.5 h-1.5 rounded-full bg-neutral-300 dark:bg-dark-600"></div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -381,14 +607,23 @@ export default function Home() {
               {/* Product Grid */}
               <div className={`grid gap-4 sm:gap-6 ${gridColsClass}`}>
                 {isLoading ? (
-                  // Loading skeletons
-                  Array.from({ length: 8 }).map((_, index) => (
-                    <div key={index} className="bg-white dark:bg-dark-800 rounded-lg border border-neutral-200 dark:border-dark-700 overflow-hidden animate-pulse">
-                      <div className="aspect-square bg-neutral-200 dark:bg-dark-700"></div>
-                      <div className="p-3 sm:p-4">
-                        <div className="h-4 bg-neutral-200 dark:bg-dark-700 rounded mb-2"></div>
-                        <div className="h-3 bg-neutral-200 dark:bg-dark-700 rounded mb-3 w-3/4"></div>
-                        <div className="h-5 bg-neutral-200 dark:bg-dark-700 rounded"></div>
+                  // Loading skeletons with shimmer effect
+                  Array.from({ length: 10 }).map((_, index) => (
+                    <div key={index} className="bg-white dark:bg-dark-800 rounded-lg border border-neutral-200 dark:border-dark-700 overflow-hidden shadow-sm">
+                      <div className="relative aspect-square bg-neutral-200 dark:bg-dark-700 overflow-hidden">
+                        {/* Shimmer effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-white/10 to-transparent animate-shimmer"></div>
+                      </div>
+                      <div className="p-3 sm:p-4 space-y-2">
+                        <div className="relative h-4 bg-neutral-200 dark:bg-dark-700 rounded overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-white/10 to-transparent animate-shimmer"></div>
+                        </div>
+                        <div className="relative h-3 bg-neutral-200 dark:bg-dark-700 rounded w-3/4 overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-white/10 to-transparent animate-shimmer"></div>
+                        </div>
+                        <div className="relative h-6 bg-neutral-200 dark:bg-dark-700 rounded w-1/2 overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-white/10 to-transparent animate-shimmer"></div>
+                        </div>
                       </div>
                     </div>
                   ))
