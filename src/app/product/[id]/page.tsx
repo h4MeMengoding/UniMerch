@@ -278,39 +278,25 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const availableSizes = sizeVariant ? sizeVariant.options.map(o => o.name) : [];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-dark-950 transition-colors duration-300">
-      {/* Breadcrumb */}
-      <div className="border-b border-neutral-200 dark:border-dark-700">
-        <div className="container mx-auto px-4 lg:px-6 py-4">
-          <motion.nav
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center space-x-2 text-sm text-neutral-600 dark:text-neutral-400"
-          >
-            <Link href="/" className="hover:text-primary-600 transition-colors">
-              Beranda
-            </Link>
-            <span>/</span>
-            <Link href="/shop" className="hover:text-primary-600 transition-colors">
-              Toko
-            </Link>
-            <span>/</span>
-            <Link href={`/category/${product.category.toLowerCase()}`} className="hover:text-primary-600 transition-colors">
-              {product.category}
-            </Link>
-            <span>/</span>
-            <span className="text-neutral-900 dark:text-white font-medium">{product.name}</span>
-          </motion.nav>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 lg:px-6 py-6">
-        {/* Additional Simple Breadcrumb */}
+    <div className="min-h-screen bg-white dark:bg-dark-950 transition-colors duration-300 pt-16 md:pt-20 pb-20 md:pb-6">
+      {/* Container with padding top for mobile */}
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 pt-2 sm:pt-3 pb-4 sm:pb-6">
+        {/* Back Button & Breadcrumb - Side by side on mobile */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-4"
+          className="flex items-center gap-3 mb-3 sm:mb-4"
         >
+          {/* Back Button - Mobile only */}
+          <button
+            onClick={() => router.back()}
+            className="md:hidden flex-shrink-0 p-1.5 -ml-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors"
+            aria-label="Kembali"
+          >
+            <ArrowLeft className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+          </button>
+
+          {/* Breadcrumb */}
           <nav className="flex items-center space-x-2 text-sm text-neutral-500 dark:text-neutral-400">
             <Link href="/" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
               Home
@@ -325,29 +311,29 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           </nav>
         </motion.div>
 
-        {/* Back Button */}
+        {/* Back Button - Desktop only */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="mb-5"
+          className="hidden md:block mb-3 sm:mb-4"
         >
-          <Link 
-            href="/"
+          <button
+            onClick={() => router.back()}
             className="inline-flex items-center space-x-2 text-neutral-600 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Kembali ke Produk</span>
-          </Link>
+            <span>Kembali</span>
+          </button>
         </motion.div>
 
         {/* Product Info Grid - 3 Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-12 gap-4 sm:gap-6">
           {/* Left Column - Product Images */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="lg:col-span-1 xl:col-span-4 space-y-4"
+            className="lg:col-span-1 xl:col-span-4 space-y-3"
           >
             {/* Main Image */}
             <div className="relative aspect-square bg-neutral-100 dark:bg-dark-800 rounded-xl overflow-hidden">
@@ -383,8 +369,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </button>
             </div>
 
-            {/* Thumbnail Images */}
-            <div className="grid grid-cols-4 gap-2">
+            {/* Thumbnail Images - Hidden on mobile */}
+            <div className="hidden md:grid grid-cols-4 gap-2">
               {productImages.map((image, index) => (
                 <button
                   key={index}
@@ -414,11 +400,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-1 xl:col-span-5 space-y-6"
+            className="lg:col-span-1 xl:col-span-5 space-y-4 sm:space-y-5"
           >
             {/* Product Name */}
-            <div className="space-y-2">
-              <h1 className="text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white leading-tight">
+            <div className="space-y-1">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white leading-tight">
                 {product.name}
               </h1>
               <div className="text-sm text-neutral-500 dark:text-neutral-400">
@@ -445,10 +431,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Unit Price */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Harga Satuan:</h3>
-              <div className="flex items-center space-x-3">
-                <span className="text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white">
                   {formatPrice(product.price)}
                 </span>
                 {product.originalPrice && product.originalPrice > product.price && (
@@ -468,7 +454,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
             {/* Item Variants - Only show if product has variants */}
             {product.hasVariants && productVariants.length > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <h3 className="font-medium text-neutral-900 dark:text-white">Pilihan Item:</h3>
                 
                 {/* Color Selection - Only show if color variant exists */}
@@ -549,8 +535,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             )}
 
             {/* Deskripsi dan Ulasan Tabs */}
-            <div className="border-t border-neutral-200 dark:border-dark-700 pt-6">
-              <div className="flex space-x-6 mb-4">
+            <div className="border-t border-neutral-200 dark:border-dark-700 pt-4 sm:pt-5">
+              <div className="flex space-x-4 sm:space-x-6 mb-3 sm:mb-4">
                 <button
                   onClick={() => setActiveTab('description')}
                   className={`pb-2 border-b-2 font-medium text-sm transition-colors ${
@@ -574,19 +560,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Tab Content */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {activeTab === 'description' && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="space-y-4"
+                    className="space-y-3"
                   >
-                    <div className="text-neutral-600 dark:text-neutral-300 leading-relaxed whitespace-pre-line">
+                    <div className="text-neutral-600 dark:text-neutral-300 text-sm sm:text-base leading-relaxed whitespace-pre-line">
                       {product.description || 'Produk berkualitas tinggi dengan standar terbaik. Cocok untuk berbagai kebutuhan dan aktivitas sehari-hari.'}
                     </div>
                     
                     <div>
-                      <h4 className="font-semibold text-neutral-900 dark:text-white mb-2">Fitur Utama:</h4>
+                      <h4 className="font-semibold text-neutral-900 dark:text-white mb-1.5 text-sm sm:text-base">Fitur Utama:</h4>
                       <ul className="space-y-1">
                         <li className="flex items-start space-x-2 text-neutral-600 dark:text-neutral-300 text-sm">
                           <Award className="w-4 h-4 text-primary-600 dark:text-primary-400 mt-0.5 flex-shrink-0" />
@@ -613,11 +599,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="space-y-4"
+                    className="space-y-3"
                   >
-                    <div className="space-y-3 max-h-60 overflow-y-auto">
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
                       {mockReviews.slice(0, 3).map((review) => (
-                        <div key={review.id} className="border-b border-neutral-200 dark:border-dark-700 pb-3 last:border-b-0">
+                        <div key={review.id} className="border-b border-neutral-200 dark:border-dark-700 pb-2 last:border-b-0">
                           <div className="flex items-start justify-between mb-1">
                             <h5 className="font-medium text-neutral-900 dark:text-white text-sm">{review.user}</h5>
                             <div className="flex space-x-0.5">
@@ -651,16 +637,16 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="lg:col-span-2 xl:col-span-3 bg-white dark:bg-dark-900 border border-neutral-200 dark:border-dark-700 rounded-xl p-6 h-fit sticky top-6"
+            className="hidden md:block lg:col-span-2 xl:col-span-3 bg-white dark:bg-dark-900 border border-neutral-200 dark:border-dark-700 rounded-xl p-4 sm:p-5 h-fit sticky top-6"
           >
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-5">
               {/* Section Title */}
-              <h3 className="text-lg font-semibold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-dark-700 pb-3">
+              <h3 className="text-base sm:text-lg font-semibold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-dark-700 pb-2">
                 Atur Pembelian
               </h3>
 
               {/* Stock Status */}
-              <div className="flex items-center space-x-2 bg-neutral-50 dark:bg-dark-800 rounded-lg p-3">
+              <div className="flex items-center space-x-2 bg-neutral-50 dark:bg-dark-800 rounded-lg p-2.5">
                 <div className={`w-3 h-3 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
                 <span className={`text-sm font-medium ${product.stock > 0 ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
                   {product.stock > 0 ? `Stok tersedia (${product.stock} item)` : 'Stok habis'}
@@ -668,7 +654,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Quantity Controls */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   Jumlah:
                 </label>
@@ -699,8 +685,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Total Price */}
-              <div className="space-y-3 bg-neutral-50 dark:bg-dark-800 rounded-lg p-4">
-                <div className="space-y-2">
+              <div className="space-y-2 bg-neutral-50 dark:bg-dark-800 rounded-lg p-3">
+                <div className="space-y-1.5">
                   <div className="flex justify-between text-sm">
                     <span className="text-neutral-600 dark:text-neutral-400">Harga satuan:</span>
                     <span className="font-medium text-neutral-900 dark:text-white">{formatPrice(product.price)}</span>
@@ -720,10 +706,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {/* Add to Cart Button */}
                 <motion.button
-                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-6 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed text-sm sm:text-base"
                   whileHover={{ scale: product.stock > 0 ? 1.02 : 1 }}
                   whileTap={{ scale: product.stock > 0 ? 0.98 : 1 }}
                   disabled={product.stock === 0}
@@ -735,7 +721,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 {/* Buy Now Button */}
                 <motion.button
                   onClick={handleBuyNow}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-sm sm:text-base"
                   whileHover={{ scale: (product.stock > 0 && !isProcessingOrder) ? 1.02 : 1 }}
                   whileTap={{ scale: (product.stock > 0 && !isProcessingOrder) ? 0.98 : 1 }}
                   disabled={product.stock === 0 || isProcessingOrder}
@@ -755,7 +741,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 {/* Like/Wishlist Button */}
                 <motion.button
                   onClick={() => setIsWishlisted(!isWishlisted)}
-                  className={`w-full py-3 px-6 rounded-lg font-medium border-2 transition-colors flex items-center justify-center space-x-2 ${
+                  className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-medium border-2 transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base ${
                     isWishlisted
                       ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
                       : 'border-neutral-300 dark:border-dark-600 text-neutral-600 dark:text-neutral-400 hover:border-red-300 dark:hover:border-red-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
@@ -763,12 +749,65 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
+                  <Heart className={`w-4 sm:w-5 h-4 sm:h-5 ${isWishlisted ? 'fill-current' : ''}`} />
                   <span>{isWishlisted ? 'Disukai' : 'Sukai'}</span>
                 </motion.button>
               </div>
             </div>
           </motion.div>
+        </div>
+      </div>
+
+      {/* Sticky Bottom Bar - Mobile Only */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-dark-900 border-t border-neutral-200 dark:border-dark-700 px-4 py-3">
+        <div className="flex items-center gap-2">
+          {/* Quantity Selector - Compact */}
+          <div className="flex items-center border border-neutral-300 dark:border-dark-600 rounded-lg">
+            <button
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              className="p-2 hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors rounded-l-lg disabled:opacity-50"
+              disabled={quantity <= 1}
+            >
+              <Minus className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+            </button>
+            <span className="px-3 py-2 font-semibold text-sm text-neutral-900 dark:text-white min-w-12 text-center">
+              {quantity}
+            </span>
+            <button
+              onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+              className="p-2 hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors rounded-r-lg disabled:opacity-50"
+              disabled={quantity >= product.stock}
+            >
+              <Plus className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+            </button>
+          </div>
+
+          {/* Add to Cart Button - Icon Only */}
+          <button
+            className="flex-shrink-0 bg-primary-600 hover:bg-primary-700 text-white p-3 rounded-lg transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
+            disabled={product.stock === 0}
+            aria-label="Tambah ke Keranjang"
+          >
+            <ShoppingCart className="w-5 h-5" />
+          </button>
+
+          {/* Buy Now Button - Full Width */}
+          <button
+            onClick={handleBuyNow}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-lg font-semibold transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed text-sm"
+            disabled={product.stock === 0 || isProcessingOrder}
+          >
+            {isProcessingOrder ? (
+              <div className="flex items-center justify-center space-x-2">
+                <LoadingSpinner size="sm" />
+                <span>Proses...</span>
+              </div>
+            ) : product.stock > 0 ? (
+              'Beli Sekarang'
+            ) : (
+              'Stok Habis'
+            )}
+          </button>
         </div>
       </div>
     </div>

@@ -146,6 +146,13 @@ export default function MobileBottomNav() {
   // close search when navigating away (safety)
   useEffect(() => setShowSearch(false), [pathname]);
 
+  // Hide mobile bottom nav on product detail page
+  const isProductDetailPage = pathname.startsWith('/product/');
+
+  if (isProductDetailPage) {
+    return <SearchModal open={showSearch} onClose={() => setShowSearch(false)} />;
+  }
+
   return (
     <>
       <nav
