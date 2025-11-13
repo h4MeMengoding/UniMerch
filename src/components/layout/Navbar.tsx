@@ -278,13 +278,13 @@ export default function Navbar() {
                           {user.role !== 'ADMIN' && (
                             <button
                               onClick={() => {
-                                router.push('/user/settings');
+                                router.push('/user/orders');
                                 setIsProfileOpen(false);
                               }}
                               className="w-full flex items-center px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-dark-700 transition-colors"
                             >
-                              <Settings className="w-4 h-4 mr-3" />
-                              Pengaturan
+                              <ShoppingCart className="w-4 h-4 mr-3" />
+                              Pesanan
                             </button>
                           )}
                         </div>
@@ -399,13 +399,13 @@ export default function Navbar() {
                           {user.role !== 'ADMIN' && (
                             <button
                               onClick={() => {
-                                router.push('/user/settings');
+                                router.push('/user/orders');
                                 setIsProfileOpen(false);
                               }}
                               className="w-full flex items-center px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-dark-700 transition-colors"
                             >
-                              <Settings className="w-4 h-4 mr-3" />
-                              Pengaturan
+                              <ShoppingCart className="w-4 h-4 mr-3" />
+                              Pesanan
                             </button>
                           )}
                         </div>

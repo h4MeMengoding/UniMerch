@@ -180,14 +180,17 @@ export async function GET(request: Request) {
         paymentStatus: paymentStatus,
         user: order.user,
         createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        payment: order.payment,
         items: order.items.map(item => ({
           id: item.id,
-          productName: item.product?.name || 'Produk dihapus',
-          variantName: item.variantOptions.length > 0 
-            ? item.variantOptions.map(opt => opt.name).join(', ')
-            : null,
           quantity: item.quantity,
-          price: item.price
+          price: item.price,
+          product: {
+            id: item.product?.id || 0,
+            name: item.product?.name || 'Produk dihapus',
+            image: item.product?.image || ''
+          }
         }))
       };
     });

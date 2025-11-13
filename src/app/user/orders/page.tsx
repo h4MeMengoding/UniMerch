@@ -58,6 +58,39 @@ export default function OrdersPage() {
     }
   };
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'DIBAYAR':
+        return 'Dibayar';
+      case 'BELUM_DIBAYAR':
+        return 'Belum Dibayar';
+      case 'SIAP_DIAMBIL':
+        return 'Siap Diambil';
+      case 'SUDAH_DIAMBIL':
+        return 'Sudah Diambil';
+      case 'SELESAI':
+        return 'Selesai';
+      default:
+        return status;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'DIBAYAR':
+      case 'SIAP_DIAMBIL':
+        return 'bg-green-100 text-green-800';
+      case 'BELUM_DIBAYAR':
+        return 'bg-red-100 text-red-800';
+      case 'SUDAH_DIAMBIL':
+        return 'bg-blue-100 text-blue-800';
+      case 'SELESAI':
+        return 'bg-emerald-100 text-emerald-800';
+      default:
+        return 'bg-neutral-100 text-neutral-800';
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
     const fetchOrders = async () => {
@@ -97,7 +130,7 @@ export default function OrdersPage() {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">Rp {order.totalAmount.toLocaleString('id-ID')}</p>
-                    <span className={`px-2 py-1 rounded-full text-xs ${order.status === 'DIBAYAR' ? 'bg-green-100 text-green-800' : order.status === 'BELUM_DIBAYAR' ? 'bg-red-100 text-red-800' : 'bg-neutral-100 text-neutral-800'}`}>{order.status}</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>{getStatusText(order.status)}</span>
                   </div>
                 </div>
 
