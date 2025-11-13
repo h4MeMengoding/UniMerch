@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { motion } from 'framer-motion';
 import { 
   ArrowLeft, 
   Heart, 
@@ -16,7 +15,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/AuthProvider';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ProductDetailSkeleton from '@/components/ui/ProductDetailSkeleton';
 
 interface VariantOption {
   id: number;
@@ -230,14 +229,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-dark-950 flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="lg" />
-          <p className="mt-4 text-neutral-600 dark:text-neutral-400">Memuat produk...</p>
-        </div>
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (error || !product) {
@@ -282,11 +274,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       {/* Container with padding top for mobile */}
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 pt-2 sm:pt-3 pb-4 sm:pb-6">
         {/* Back Button & Breadcrumb - Side by side on mobile */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 mb-3 sm:mb-4"
-        >
+        <div className="flex items-center gap-3 mb-3 sm:mb-4">
           {/* Back Button - Mobile only */}
           <button
             onClick={() => router.back()}
@@ -309,14 +297,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {product.category}
             </Link>
           </nav>
-        </motion.div>
+        </div>
 
         {/* Back Button - Desktop only */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="hidden md:block mb-3 sm:mb-4"
-        >
+        <div className="hidden md:block mb-3 sm:mb-4">
           <button
             onClick={() => router.back()}
             className="inline-flex items-center space-x-2 text-neutral-600 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
@@ -324,17 +308,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali</span>
           </button>
-        </motion.div>
+        </div>
 
         {/* Product Info Grid - 3 Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-12 gap-4 sm:gap-6">
           {/* Left Column - Product Images */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className="lg:col-span-1 xl:col-span-4 space-y-3"
-          >
+          <div className="lg:col-span-1 xl:col-span-4 space-y-3">
             {/* Main Image */}
             <div className="relative aspect-square bg-neutral-100 dark:bg-dark-800 rounded-xl overflow-hidden">
               <Image
@@ -393,15 +372,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 </button>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* Center Column - Product Details */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-1 xl:col-span-5 space-y-4 sm:space-y-5"
-          >
+          <div className="lg:col-span-1 xl:col-span-5 space-y-4 sm:space-y-5">
             {/* Product Name */}
             <div className="space-y-1">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white leading-tight">
@@ -562,11 +536,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {/* Tab Content */}
               <div className="space-y-3">
                 {activeTab === 'description' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="space-y-3"
-                  >
+                  <div className="space-y-3">
                     <div className="text-neutral-600 dark:text-neutral-300 text-sm sm:text-base leading-relaxed whitespace-pre-line">
                       {product.description || 'Produk berkualitas tinggi dengan standar terbaik. Cocok untuk berbagai kebutuhan dan aktivitas sehari-hari.'}
                     </div>
@@ -592,15 +562,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         </li>
                       </ul>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
 
                 {activeTab === 'reviews' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="space-y-3"
-                  >
+                  <div className="space-y-3">
                     <div className="space-y-2 max-h-60 overflow-y-auto">
                       {mockReviews.slice(0, 3).map((review) => (
                         <div key={review.id} className="border-b border-neutral-200 dark:border-dark-700 pb-2 last:border-b-0">
@@ -626,19 +592,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     <button className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium">
                       Lihat semua ulasan →
                     </button>
-                  </motion.div>
+                  </div>
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Right Column - Purchase Controls */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="hidden md:block lg:col-span-2 xl:col-span-3 bg-white dark:bg-dark-900 border border-neutral-200 dark:border-dark-700 rounded-xl p-4 sm:p-5 h-fit sticky top-6"
-          >
+          <div className="hidden md:block lg:col-span-2 xl:col-span-3 bg-white dark:bg-dark-900 border border-neutral-200 dark:border-dark-700 rounded-xl p-4 sm:p-5 h-fit sticky top-6">
             <div className="space-y-4 sm:space-y-5">
               {/* Section Title */}
               <h3 className="text-base sm:text-lg font-semibold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-dark-700 pb-2">
@@ -708,53 +669,44 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {/* Action Buttons */}
               <div className="space-y-2.5">
                 {/* Add to Cart Button */}
-                <motion.button
+                <button
                   className="w-full bg-primary-600 hover:bg-primary-700 text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed text-sm sm:text-base"
-                  whileHover={{ scale: product.stock > 0 ? 1.02 : 1 }}
-                  whileTap={{ scale: product.stock > 0 ? 0.98 : 1 }}
                   disabled={product.stock === 0}
                 >
                   <ShoppingCart className="w-5 h-5" />
                   <span>{product.stock > 0 ? 'Tambah ke Keranjang' : 'Stok Habis'}</span>
-                </motion.button>
+                </button>
 
                 {/* Buy Now Button */}
-                <motion.button
+                <button
                   onClick={handleBuyNow}
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-sm sm:text-base"
-                  whileHover={{ scale: (product.stock > 0 && !isProcessingOrder) ? 1.02 : 1 }}
-                  whileTap={{ scale: (product.stock > 0 && !isProcessingOrder) ? 0.98 : 1 }}
                   disabled={product.stock === 0 || isProcessingOrder}
                 >
                   {isProcessingOrder ? (
-                    <>
-                      <LoadingSpinner size="sm" />
-                      <span className="ml-2">Memproses...</span>
-                    </>
+                    <span>Memproses...</span>
                   ) : product.stock > 0 ? (
                     <span>Beli Sekarang</span>
                   ) : (
                     <span>Stok Habis</span>
                   )}
-                </motion.button>
+                </button>
 
                 {/* Like/Wishlist Button */}
-                <motion.button
+                <button
                   onClick={() => setIsWishlisted(!isWishlisted)}
                   className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-medium border-2 transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base ${
                     isWishlisted
                       ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
                       : 'border-neutral-300 dark:border-dark-600 text-neutral-600 dark:text-neutral-400 hover:border-red-300 dark:hover:border-red-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
                   }`}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                 >
                   <Heart className={`w-4 sm:w-5 h-4 sm:h-5 ${isWishlisted ? 'fill-current' : ''}`} />
                   <span>{isWishlisted ? 'Disukai' : 'Sukai'}</span>
-                </motion.button>
+                </button>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 
@@ -798,10 +750,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             disabled={product.stock === 0 || isProcessingOrder}
           >
             {isProcessingOrder ? (
-              <div className="flex items-center justify-center space-x-2">
-                <LoadingSpinner size="sm" />
-                <span>Proses...</span>
-              </div>
+              'Proses...'
             ) : product.stock > 0 ? (
               'Beli Sekarang'
             ) : (

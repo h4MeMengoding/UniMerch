@@ -7,6 +7,7 @@ import { Grid, List, SlidersHorizontal, Search, ChevronRight } from 'lucide-reac
 import HeroSection from '@/components/ui/HeroSection';
 import ProductCard from '@/components/ui/ProductCard';
 import FilterSidebar from '@/components/ui/FilterSidebar';
+import WelcomeModal from '@/components/ui/WelcomeModal';
 import { Product } from '@/types/product';
 import type { FilterSection } from '@/components/ui/FilterSidebar';
 
@@ -23,10 +24,26 @@ export default function Home() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   // Set mounted state
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Show welcome modal on first visit only (until cache cleared)
+  useEffect(() => {
+    const hasSeenModal = localStorage.getItem('hasSeenWelcomeModal');
+    if (!hasSeenModal) {
+      // Mark as seen immediately to prevent showing again
+      localStorage.setItem('hasSeenWelcomeModal', 'true');
+      
+      // Show modal after a short delay for better UX
+      const timer = setTimeout(() => {
+        setShowWelcomeModal(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   useEffect(() => {
@@ -153,6 +170,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark-950 transition-colors duration-300 pt-16">
+      {/* Welcome Modal */}
+      <WelcomeModal open={showWelcomeModal} onClose={() => setShowWelcomeModal(false)} />
+
       {/* Hero Section - Hide when searching or filtering. Show skeleton while loading */}
       {!searchQuery && !categoryQuery && (isLoading ? (
         <div className="pt-6 sm:pt-8 md:pt-10 lg:pt-12 pb-0">
