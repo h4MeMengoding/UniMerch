@@ -44,17 +44,14 @@ export default function Footer() {
       title: 'Layanan Pelanggan',
       links: [
         { label: 'Pusat Bantuan', href: '/help' },
-        { label: 'Pengembalian', href: '/returns' },
-        { label: 'Info Pengiriman', href: '/shipping' },
+        { label: 'Info Pengambilan', href: '/shipping' },
         { label: 'Panduan Ukuran', href: '/size-guide' },
-        { label: 'Lacak Pesanan', href: '/track' },
       ],
     },
     {
       title: 'Perusahaan',
       links: [
         { label: 'Tentang Kami', href: '/about' },
-        { label: 'Karier', href: '/careers' },
         { label: 'Pers', href: '/press' },
         { label: 'Kebijakan Privasi', href: '/privacy' },
         { label: 'Syarat Layanan', href: '/terms' },
@@ -215,7 +212,7 @@ export default function Footer() {
               viewport={{ once: true }}
               className="text-neutral-400 dark:text-neutral-500 text-sm"
             >
-              © 2025 UniMerch. Hak cipta dilindungi.
+              © 2025 UniMerch. Made by Ilhame.
             </motion.p>
             
             <div className="flex items-center space-x-6">

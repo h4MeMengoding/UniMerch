@@ -14,15 +14,15 @@ type CategoryShape = {
 const bannerData = [
   {
     id: 1,
-    image: "https://i.ibb.co/bjtZ0MHH/banner.png"
+    image: "https://rdrmdqbuiezxecuioxrc.supabase.co/storage/v1/object/public/images/gambar-produk/banner.png"
   },
   {
     id: 2,
-    image: "https://i.ibb.co/rKjCy5x3/banner2.png"
+    image: "https://rdrmdqbuiezxecuioxrc.supabase.co/storage/v1/object/public/images/gambar-produk/banner2.png"
   },
   {
     id: 3,
-    image: "https://i.ibb.co/zTRMJ4Kn/banner3.png"
+    image: "https://rdrmdqbuiezxecuioxrc.supabase.co/storage/v1/object/public/images/gambar-produk/banner3.png"
   }
 ];
 

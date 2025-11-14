@@ -94,6 +94,9 @@ export default function AdminProducts() {
     isOnSale: false,
     stock: ''
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -176,6 +179,8 @@ export default function AdminProducts() {
     });
     setHasVariants(false);
     setVariants([]);
+    setImageFile(null);
+    setImagePreview('');
     // Refresh categories when opening add modal
     fetchCategories();
     setIsModalOpen(true);
@@ -185,6 +190,8 @@ export default function AdminProducts() {
     setIsModalOpen(false);
     setHasVariants(false);
     setVariants([]);
+    setImageFile(null);
+    setImagePreview('');
   };
 
   // Variant management functions
@@ -390,6 +397,10 @@ export default function AdminProducts() {
       stock: product.stock.toString()
     });
     
+    // Set image preview from existing product
+    setImagePreview(product.image);
+    setImageFile(null);
+    
     // Load variants if they exist
     if (product.hasVariants && product.variants) {
       setHasVariants(true);
@@ -442,10 +453,91 @@ export default function AdminProducts() {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Tipe file tidak valid. Hanya JPEG, PNG, WebP, dan GIF yang diperbolehkan.');
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        alert('Ukuran file terlalu besar. Maksimal 5MB.');
+        return;
+      }
+
+      setImageFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview('');
+    setFormData({ ...formData, image: '' });
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return null;
+
+    try {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('file', imageFile);
+      formData.append('folder', 'gambar-produk');
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Gagal mengunggah gambar: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
+      // Upload image first if there's a new file
+      let imageUrl = formData.image;
+      if (imageFile) {
+        const uploadedUrl = await uploadImage();
+        if (!uploadedUrl) {
+          alert('Gagal mengunggah gambar');
+          return;
+        }
+        imageUrl = uploadedUrl;
+      }
+
+      // Validate image URL
+      if (!imageUrl) {
+        alert('Silakan upload gambar produk');
+        return;
+      }
+
       const url = editingProduct 
         ? `/api/admin/products/${editingProduct.id}`
         : '/api/admin/products';
@@ -455,6 +547,7 @@ export default function AdminProducts() {
       // Prepare data with variants
       const productData = {
         ...formData,
+        image: imageUrl,
         hasVariants,
         variants: hasVariants ? variants.filter(v => v.name && v.options.length > 0) : []
       };
@@ -759,17 +852,53 @@ export default function AdminProducts() {
                   />
                 </div>
 
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                    URL Gambar
+                    Gambar Produk
                   </label>
-                  <input
-                    type="url"
-                    required
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    className="w-full px-3 py-2 border border-neutral-300 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-700 text-neutral-900 dark:text-white"
-                  />
+                  
+                  {imagePreview ? (
+                    <div className="relative">
+                      <div className="w-full h-48 bg-neutral-100 dark:bg-dark-600 rounded-lg overflow-hidden">
+                        <Image
+                          src={imagePreview}
+                          alt="Preview"
+                          width={400}
+                          height={400}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <input
+                        type="file"
+                        id="image-upload"
+                        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="image-upload"
+                        className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-neutral-300 dark:border-dark-600 rounded-lg cursor-pointer hover:border-primary-500 dark:hover:border-primary-400 transition-colors bg-neutral-50 dark:bg-dark-700"
+                      >
+                        <Upload className="w-12 h-12 text-neutral-400 mb-3" />
+                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">
+                          Klik untuk upload gambar
+                        </p>
+                        <p className="text-xs text-neutral-500">
+                          JPEG, PNG, WebP, GIF (Max. 5MB)
+                        </p>
+                      </label>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -959,16 +1088,27 @@ export default function AdminProducts() {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="px-4 py-2 text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-dark-600 hover:bg-neutral-200 dark:hover:bg-dark-500 rounded-lg transition-colors"
+                  disabled={isUploading}
+                  className="px-4 py-2 text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-dark-600 hover:bg-neutral-200 dark:hover:bg-dark-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors flex items-center space-x-2"
+                  disabled={isUploading}
+                  className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Save className="w-4 h-4" />
-                  <span>{editingProduct ? 'Update' : 'Simpan'}</span>
+                  {isUploading ? (
+                    <>
+                      <LoadingSpinner size="sm" />
+                      <span>Uploading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>{editingProduct ? 'Update' : 'Simpan'}</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>
