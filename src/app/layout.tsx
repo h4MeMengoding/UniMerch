@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import ThemeAwareToastContainer from "@/components/ui/ThemeAwareToastContainer";
 import 'react-toastify/dist/ReactToastify.css';
+import PWARegister from '@/components/PWARegister';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -20,6 +21,15 @@ export const metadata: Metadata = {
   description: "Temukan koleksi merchandise kampus terlengkap dengan kualitas terbaik dan harga terjangkau. Belanja jaket, kaos, tas, dan souvenir universitas dengan mudah.",
   keywords: "merchandise kampus, jaket kampus, kaos polo kampus, tas kampus, souvenir universitas, merchandise universitas",
   authors: [{ name: "UniMerch Team" }],
+  icons: {
+    icon: [
+      { url: '/favicon/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+      { url: '/favicon/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon/favicon.ico' }
+    ],
+    shortcut: '/favicon/favicon.ico',
+    apple: '/favicon/apple-touch-icon.png'
+  }
 };
 
 export const viewport: Viewport = {
@@ -47,6 +57,13 @@ export default function RootLayout({
             `,
           }}
         />
+        <link rel="manifest" href="/favicon/site.webmanifest" />
+        <meta name="theme-color" content="#ffffff" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="UniMerch" />
       </head>
       <body 
         className={`${plusJakartaSans.className} antialiased bg-white dark:bg-dark-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300`}
@@ -63,6 +80,8 @@ export default function RootLayout({
               <MobileBottomNav />
             </div>
             <ThemeAwareToastContainer />
+              {/* PWA service worker registration (client) */}
+              <PWARegister />
           </AuthProvider>
         </ThemeProvider>
       </body>
