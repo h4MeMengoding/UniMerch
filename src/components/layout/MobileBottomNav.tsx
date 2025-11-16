@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Heart, Search, List, User } from "lucide-react";
+import { Home, ShoppingCart, Search, List, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -137,7 +137,7 @@ export default function MobileBottomNav() {
 
   const items = [
     { label: "Beranda", href: "/", Icon: Home },
-    { label: "Wishlist", href: "/wishlist", Icon: Heart },
+    { label: "Keranjang", href: "/cart", Icon: ShoppingCart },
     { label: "Search", href: "/search", Icon: Search },
     { label: "Pesanan", href: "/user/orders", Icon: List },
     { label: "Akun", href: "/user/dashboard", Icon: User },

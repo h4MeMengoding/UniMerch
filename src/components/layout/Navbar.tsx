@@ -173,6 +173,7 @@ export default function Navbar() {
 
             {/* Cart */}
             <motion.button
+              onClick={() => router.push('/cart')}
               className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-dark-800 transition-colors relative"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
