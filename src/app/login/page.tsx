@@ -218,60 +218,6 @@ export default function Login() {
               </Link>
             </p>
           </div>
-
-          {/* Demo Credentials */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-6 space-y-4"
-          >
-            {/* Admin Credentials */}
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center">
-                  <Shield className="w-4 h-4 text-red-600 dark:text-red-400 mr-2" />
-                  <p className="text-sm font-medium text-red-700 dark:text-red-300">Admin Account</p>
-                </div>
-                <motion.button
-                  onClick={fillAdminCredentials}
-                  className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-md transition-colors duration-200 min-h-[32px] shadow-sm hover:shadow-md"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  type="button"
-                >
-                  Gunakan
-                </motion.button>
-              </div>
-              <p className="text-xs text-red-600 dark:text-red-400">
-                Email: pkkmb@unimerch.id<br />
-                Password: admin123
-              </p>
-            </div>
-
-            {/* User Credentials */}
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center">
-                  <User className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
-                  <p className="text-sm font-medium text-blue-700 dark:text-blue-300">User Account</p>
-                </div>
-                <motion.button
-                  onClick={fillUserCredentials}
-                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors duration-200 min-h-[32px] shadow-sm hover:shadow-md"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  type="button"
-                >
-                  Gunakan
-                </motion.button>
-              </div>
-              <p className="text-xs text-blue-600 dark:text-blue-400">
-                Email: user@unimerch.id<br />
-                Password: user123
-              </p>
-            </div>
-          </motion.div>
         </motion.div>
       </motion.div>
     </div>
