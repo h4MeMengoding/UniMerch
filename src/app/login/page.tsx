@@ -19,6 +19,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const router = useRouter();
   const { login } = useAuth();
+  const { refreshAuth } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +32,7 @@ export default function Login() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // ensure Set-Cookie is accepted by the browser
         body: JSON.stringify(formData),
       });
 
@@ -46,8 +48,20 @@ export default function Login() {
           toastId: 'login-success'
         });
         
-        // Redirect based on role
-        router.push(data.redirectUrl);
+        // Re-validate auth status with server to ensure cookie was set
+        try {
+          await refreshAuth();
+        } catch (err) {
+          console.warn('refreshAuth failed:', err);
+        }
+
+        // Redirect to homepage and revalidate RSCs
+        await router.push('/');
+        try {
+          router.refresh();
+        } catch (err) {
+          console.warn('router.refresh failed:', err);
+        }
       } else {
         setError(data.message || 'Login failed');
         toast.error(`Login gagal: ${data.message || 'Email atau password salah'}`, {
