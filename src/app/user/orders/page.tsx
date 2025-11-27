@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import AuthPrompt from '@/components/ui/AuthPrompt';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/providers/AuthProvider';
 
 interface Order {
   id: number;
@@ -27,6 +30,8 @@ interface OrderItem {
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
 
   const formatOrderCode = (orderId: number, createdAt: string) => {
     try {
@@ -93,6 +98,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     let mounted = true;
+
     const fetchOrders = async () => {
       setLoading(true);
       try {
@@ -106,11 +112,31 @@ export default function OrdersPage() {
         if (mounted) setLoading(false);
       }
     };
+
+    if (authLoading) return;
+    if (!user) {
+      // Not authenticated: clear orders and stop loading
+      setOrders([]);
+      setLoading(false);
+      return;
+    }
+
     fetchOrders();
     return () => { mounted = false; };
-  }, []);
+  }, [authLoading, user]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner /></div>;
+  if (authLoading || loading) return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner /></div>;
+
+  if (!user) {
+    return (
+      <AuthPrompt
+        title="Silakan masuk untuk melihat pesanan"
+        description="Anda harus masuk terlebih dahulu untuk melihat daftar pesanan Anda."
+        buttonText="Masuk"
+        href="/login"
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen pt-20 bg-neutral-50 dark:bg-dark-950">

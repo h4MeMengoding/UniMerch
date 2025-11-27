@@ -3,24 +3,32 @@
 import { motion } from 'framer-motion';
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ArrowUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/providers/AuthProvider';
 import { usePathname } from 'next/navigation';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
-  const pathname = usePathname();
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const { user, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Hide entire footer on orders page
+  const isOrdersPage = pathname.startsWith('/user/orders');
+  if (isOrdersPage) return null;
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Hide back to top button on product detail page
   const isProductDetailPage = pathname.startsWith('/product/');
+
+  // If on orders page and user is known to be unauthenticated, hide the button
+  const hideOnOrdersUnauthenticated = pathname.startsWith('/user/orders') && !authLoading && !user;
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -237,7 +245,7 @@ export default function Footer() {
 
       {/* Render static buttons during SSR/initial hydration to avoid mismatches,
           then replace with motion buttons after mount for animation. */}
-      {!isProductDetailPage && (
+      {!isProductDetailPage && !hideOnOrdersUnauthenticated && (
         <>
           {!mounted ? (
             <>

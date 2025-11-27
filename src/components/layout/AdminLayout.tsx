@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { 
-  Package, 
-  Home, 
-  Menu, 
+import {
+  Package,
+  Home,
+  Menu,
   X,
   LogOut,
   ChevronLeft,
@@ -13,7 +13,10 @@ import {
   Tags,
   ShoppingCart,
   ClipboardList,
-  QrCode
+  QrCode,
+  Wallet,
+  FileText,
+  DollarSign
 } from 'lucide-react';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
@@ -42,6 +45,11 @@ export default function AdminLayout({ children, currentPage = 'dashboard' }: Adm
     // Check if current page belongs to orders submenu
     if (['manage-orders'].includes(currentPage)) {
       autoExpandMenus.push('orders');
+    }
+
+    // Check if current page belongs to finance submenu
+    if (['transactions', 'withdrawals'].includes(currentPage)) {
+      autoExpandMenus.push('finance');
     }
     
     setExpandedMenus(autoExpandMenus);
@@ -99,6 +107,26 @@ export default function AdminLayout({ children, currentPage = 'dashboard' }: Adm
           icon: Tags
         }
       ]
+    },
+    {
+      id: 'finance',
+      name: 'Keuangan',
+      icon: Wallet,
+      href: '#',
+      submenu: [
+        {
+          id: 'transactions',
+          name: 'Transaksi',
+          href: '/admin/finance/transactions',
+          icon: FileText
+        },
+        {
+          id: 'withdrawals',
+          name: 'Penarikan Dana',
+          href: '/admin/finance/withdrawals',
+          icon: DollarSign
+        }
+      ]
     }
   ];
 
@@ -113,13 +141,15 @@ export default function AdminLayout({ children, currentPage = 'dashboard' }: Adm
   return (
     <>
       {/* Mobile Menu Button - Floating */}
-      <button
-        onClick={() => setMobileMenuOpen(true)}
-        className="lg:hidden fixed bottom-6 left-6 z-40 w-14 h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300"
+      <motion.button
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        animate={{ x: mobileMenuOpen ? 240 : 0 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+        className="lg:hidden fixed bottom-20 left-6 z-[60] w-14 h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300"
         aria-label="Buka menu admin"
       >
-        <Menu className="w-6 h-6" />
-      </button>
+        {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+      </motion.button>
 
       {/* Desktop Sidebar */}
       <aside

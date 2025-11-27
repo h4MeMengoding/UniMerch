@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTheme } from '@/providers/ThemeProvider';
+import AuthPrompt from '@/components/ui/AuthPrompt';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/providers/AuthProvider';
 import { Sun, Moon } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { Product } from '@/types/product';
@@ -38,6 +41,8 @@ interface PaymentUpdate {
 }
 
 export default function DashboardContent() {
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
   const searchParams = useSearchParams();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -200,10 +205,17 @@ export default function DashboardContent() {
     }
   }, [fetchOrders, showStatusUpdateNotification]);
 
-  // Initial load
+  // Initial load - only fetch if authenticated
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      setLoading(false);
+      setOrders([]);
+      return;
+    }
+
     fetchOrders();
-  }, [fetchOrders]);
+  }, [fetchOrders, user, authLoading]);
 
   // Auto-refresh for pending payments - Optimized polling
   useEffect(() => {
@@ -270,11 +282,23 @@ export default function DashboardContent() {
     }
   }, [searchParams, fetchOrders, checkPaymentStatus]);
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
       </div>
+    );
+  }
+
+  // If not authenticated, show login prompt
+  if (!user) {
+    return (
+      <AuthPrompt
+        title="Silakan masuk untuk melihat dashboard"
+        description="Anda harus masuk terlebih dahulu untuk melihat dashboard dan pesanan Anda."
+        buttonText="Masuk"
+        href="/login"
+      />
     );
   }
 

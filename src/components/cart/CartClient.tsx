@@ -1,8 +1,8 @@
 "use client";
 
 import Image from 'next/image';
-import { useState, useMemo } from 'react';
-import { Plus, Minus, Trash2 } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Plus, Minus, Trash2, AlertTriangle, X } from 'lucide-react';
 
 type Item = {
   id: string;
@@ -18,6 +18,27 @@ export default function CartClient({ initialItems }: { initialItems: Item[] }) {
   const [items, setItems] = useState<Item[]>(
     initialItems.map((it) => ({ ...it }))
   );
+
+  // Show a dismissible alert indicating this cart is a dummy and not linked to account
+  const [showDummyAlert, setShowDummyAlert] = useState<boolean>(true);
+
+  useEffect(() => {
+    try {
+      const dismissed = sessionStorage.getItem('cart_dummy_alert_dismissed');
+      if (dismissed === '1') setShowDummyAlert(false);
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  const dismissDummyAlert = () => {
+    try {
+      sessionStorage.setItem('cart_dummy_alert_dismissed', '1');
+    } catch (e) {
+      // ignore
+    }
+    setShowDummyAlert(false);
+  };
 
   const [selectedIds, setSelectedIds] = useState<string[]>(items.map(i => i.id));
 
@@ -45,6 +66,19 @@ export default function CartClient({ initialItems }: { initialItems: Item[] }) {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 pb-32 md:pb-8">
       <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white mb-6">Keranjang Belanja</h1>
+
+      {showDummyAlert && (
+        <div className="mb-6 flex items-start gap-3 p-4 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200">
+          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+          <div className="flex-1 text-sm">
+            <div className="font-medium">Perhatian</div>
+            <div className="mt-1">Halaman keranjang ini bersifat dummy dan tidak terhubung dengan akun pengguna. Data tidak disimpan ke server.</div>
+          </div>
+          <button onClick={dismissDummyAlert} aria-label="Tutup pemberitahuan" className="text-neutral-500 dark:text-neutral-300 hover:text-neutral-700 ml-3">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
